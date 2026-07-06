@@ -45,23 +45,12 @@ static esp_lcd_panel_handle_t g_panel_handle = NULL;
 static uint8_t g_disp_buffers[2][DISP_BUFF_SZ];
 static void* g_draw_buffer = g_disp_buffers[0];
 static void* g_rend_buffer = g_disp_buffers[1];
-static SemaphoreHandle_t g_draw_sem = NULL;
 static SemaphoreHandle_t g_rend_sem = NULL;
-
-static inline void init_buffer(void) {
-    g_draw_sem = xSemaphoreCreateBinary();
-    g_rend_sem = xSemaphoreCreateBinary();
-    xSemaphoreGive(g_draw_sem);
-    xSemaphoreGive(g_rend_sem);
-}
 
 static inline void flip_buffer(void) {
     void* obuf = g_rend_buffer;
     g_rend_buffer = g_draw_buffer;
     g_draw_buffer = obuf;
-    SemaphoreHandle_t osem = g_rend_sem;
-    g_rend_sem = g_draw_sem;
-    g_draw_sem = osem;
 }
 
 static bool on_flush_done(esp_lcd_panel_io_handle_t panel_io, esp_lcd_panel_io_event_data_t *edata, void *user_ctx) {
@@ -81,7 +70,8 @@ static void render_task(void* p_param) {
     TickType_t g_cnt_fps = 0;
     TickType_t g_cnt_dtick = cur_tick;
 
-    init_buffer();
+    g_rend_sem = xSemaphoreCreateBinary();
+    xSemaphoreGive(g_rend_sem);
     for(;;) {
         cur_tick = xTaskGetTickCount();
         g_cnt_fps++;
@@ -91,7 +81,7 @@ static void render_task(void* p_param) {
             g_cnt_fps = 0;
         }
         do_render();
-        vTaskDelay( (cur_tick * frame1000 / 1000 + 1) * 1000 / frame1000 - cur_tick );
+        vTaskDelay( ((cur_tick * frame1000 / 1000 + 1) * 1000 + frame1000 - 1) / frame1000 - cur_tick );
     }
 }
 
