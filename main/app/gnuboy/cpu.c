@@ -221,7 +221,7 @@ static inline int exec_cb(void)
 	// All instructions use 2 cycles + 1 additional cycle per HL read or write
 	uint8_t op = FETCH;
 	uint8_t b, hl, val;
-	uint8_t *r;
+	uint8_t *r = NULL;
 
 	switch (op & 7)
 	{
