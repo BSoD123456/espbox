@@ -2,6 +2,7 @@
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "freertos/semphr.h"
 #include "esp_lcd_panel_io.h"
 #include "esp_lcd_panel_vendor.h"
 #include "esp_lcd_panel_ops.h"
@@ -19,7 +20,7 @@ typedef struct {
     uint8_t fps;
 } task_param_t;
 
-static const char* TAG = "exb_disp";
+static const char* TAG = "ebx_disp";
 
 #define DISP_RES_LCD_W      EBX_DISP_RES_H
 #define DISP_RES_LCD_H      EBX_DISP_RES_W
@@ -39,54 +40,58 @@ static const char* TAG = "exb_disp";
 #define DISP_BITS_CMD       8
 #define DISP_BITS_PARAM     8
 
+static esp_lcd_panel_handle_t g_panel_handle = NULL;
 
 static uint8_t g_disp_buffers[2][DISP_BUFF_SZ];
 static void* g_draw_buffer = g_disp_buffers[0];
 static void* g_rend_buffer = g_disp_buffers[1];
+static SemaphoreHandle_t g_draw_sem = NULL;
+static SemaphoreHandle_t g_rend_sem = NULL;
 
-static inline void flip_buffer() {
+static inline void init_buffer(void) {
+    g_draw_sem = xSemaphoreCreateBinary();
+    g_rend_sem = xSemaphoreCreateBinary();
+    xSemaphoreGive(g_draw_sem);
+    xSemaphoreGive(g_rend_sem);
+}
+
+static inline void flip_buffer(void) {
     void* obuf = g_rend_buffer;
     g_rend_buffer = g_draw_buffer;
     g_draw_buffer = obuf;
+    SemaphoreHandle_t osem = g_rend_sem;
+    g_rend_sem = g_draw_sem;
+    g_draw_sem = osem;
 }
 
-static SemaphoreHandle_t sem_rend_sync = NULL;
-static SemaphoreHandle_t sem_draw_sync = NULL;
-
 static bool on_flush_done(esp_lcd_panel_io_handle_t panel_io, esp_lcd_panel_io_event_data_t *edata, void *user_ctx) {
-    xSemaphoreGive(sem_rend_sync);
+    xSemaphoreGive(g_rend_sem);
     return false;
 }
 
-static uint8_t g_cnt_fps;
-static TickType_t g_cnt_dtick;
-static void do_task(void* p_param) {
-    const task_param_t* p_tsk_param = (task_param_t*)p_param;
-    const TickType_t step_tick = 1000 / p_tsk_param->fps / portTICK_PERIOD_MS; 
-    TickType_t cur_tick = xTaskGetTickCount();
-    g_cnt_fps = 0;
-    g_cnt_dtick = cur_tick;
+static void do_render(void) {
+    flip_buffer();
+    xSemaphoreTake(g_rend_sem, portMAX_DELAY);
+    esp_lcd_panel_draw_bitmap(g_panel_handle, 0, 0, EBX_DISP_RES_H, EBX_DISP_RES_W, g_rend_buffer);
+}
 
-    vSemaphoreCreateBinary(sem_rend_sync);
-    vSemaphoreCreateBinary(sem_draw_sync);
+static void render_task(void* p_param) {
+    const TickType_t frame1000 = EBX_DISP_FPS * portTICK_PERIOD_MS; 
+    TickType_t cur_tick = xTaskGetTickCount();
+    TickType_t g_cnt_fps = 0;
+    TickType_t g_cnt_dtick = cur_tick;
+
+    init_buffer();
     for(;;) {
-        xSemaphoreTake(sem_draw_sync, portMAX_DELAY);
         cur_tick = xTaskGetTickCount();
         g_cnt_fps++;
         if(cur_tick >= g_cnt_dtick) {
-            ESP_LOGI(TAG, "fps: %d", g_cnt_fps);
+            ESP_LOGI(TAG, "fps: %lu", g_cnt_fps);
             g_cnt_dtick += 1000 / portTICK_PERIOD_MS;
             g_cnt_fps = 0;
         }
-        flip_buffer();
-        esp_lcd_panel_draw_bitmap(p_tsk_param->hndl, 0, 0, EBX_DISP_RES_H, EBX_DISP_RES_W, g_rend_buffer);
-        xSemaphoreTake(sem_rend_sync, portMAX_DELAY);
-    }
-}
-
-void ebx_disp_draw_done(void) {
-    if(sem_draw_sync) {
-        xSemaphoreGive(sem_draw_sync);
+        do_render();
+        vTaskDelay( (cur_tick * frame1000 / 1000 + 1) * 1000 / frame1000 - cur_tick );
     }
 }
 
@@ -116,7 +121,6 @@ void ebx_disp_init(void) {
     };
     ESP_ERROR_CHECK(esp_lcd_new_panel_io_spi((esp_lcd_spi_bus_handle_t)DISP_SPIHOST_LCD, &io_config, &io_handle));
 
-    esp_lcd_panel_handle_t panel_handle = NULL;
     esp_lcd_panel_dev_config_t panel_config = {
         .reset_gpio_num = DISP_PIN_LCD_RST,
         .rgb_ele_order = LCD_RGB_ELEMENT_ORDER_BGR,
@@ -124,20 +128,17 @@ void ebx_disp_init(void) {
     };
 
     ESP_LOGI(TAG, "Install ST7735 panel driver");
-    ESP_ERROR_CHECK(esp_lcd_new_panel_st7735(io_handle, &panel_config, &panel_handle));
+    ESP_ERROR_CHECK(esp_lcd_new_panel_st7735(io_handle, &panel_config, &g_panel_handle));
 
-    ESP_ERROR_CHECK(esp_lcd_panel_reset(panel_handle));
-    ESP_ERROR_CHECK(esp_lcd_panel_init(panel_handle));
-    //ESP_ERROR_CHECK(esp_lcd_panel_swap_xy(panel_handle, true));
-    //ESP_ERROR_CHECK(esp_lcd_panel_mirror(panel_handle, true, false));
+    ESP_ERROR_CHECK(esp_lcd_panel_reset(g_panel_handle));
+    ESP_ERROR_CHECK(esp_lcd_panel_init(g_panel_handle));
+    //ESP_ERROR_CHECK(esp_lcd_panel_swap_xy(g_panel_handle, true));
+    //ESP_ERROR_CHECK(esp_lcd_panel_mirror(g_panel_handle, true, false));
 
     memset(g_draw_buffer, 0xaa, DISP_BUFF_SZ);
     memset(g_rend_buffer, 0x55, DISP_BUFF_SZ);
 
-    static task_param_t tsk_param = {};
-    tsk_param.hndl = panel_handle,
-    tsk_param.fps = EBX_DISP_FPS;
     TaskHandle_t hndl_disp = NULL;
-    xTaskCreate(do_task, "display", 0x1000, (void*)&tsk_param, 3, &hndl_disp);
+    xTaskCreate(render_task, "ebx_display", 0x1000, NULL, 3, &hndl_disp);
 }
 
