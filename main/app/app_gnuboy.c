@@ -34,10 +34,14 @@ static void do_draw(void* buffer) {
 }
 
 REG_APP {
-    printf(params[0]);
+    ebx_fs_init();
 
-    if (gnuboy_init(0, GB_AUDIO_STEREO_S16, GB_PIXEL_565_BE, &cb_gnu_video, NULL) < 0) {
-        ESP_LOGE(TAG, "Emulator init failed!");
+    if(gnuboy_init(0, GB_AUDIO_STEREO_S16, GB_PIXEL_565_BE, &cb_gnu_video, NULL) < 0) {
+        ESP_LOGE(TAG, "init failed");
+        abort();
+    }
+    if(gnuboy_load_rom_file(params[0]) < 0) {
+        ESP_LOGE(TAG, "load rom failed");
         abort();
     }
 

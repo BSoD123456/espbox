@@ -3,6 +3,7 @@
 #include "freertos/FreeRTOS.h"
 #include "esp_err.h"
 #include "esp_log.h"
+#include "miniz.h"
 
 #include "esp_littlefs.h"
 

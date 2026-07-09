@@ -3,9 +3,9 @@
 #include "ebx_app.h"
 
 void app_main(void) {
-    SET_APP_PARAM(test) {
-        "test param 0\n",
+    SET_APP_PARAM(gnuboy) {
+        "/storage/siren2_cn.gbc",
         NULL
     };
-    INIT_APP(test);
+    INIT_APP(gnuboy);
 }
