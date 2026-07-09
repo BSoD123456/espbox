@@ -3,9 +3,9 @@
 #include "ebx_app.h"
 
 void app_main(void) {
-    SET_APP_PARAM(gnuboy) {
+    SET_APP_PARAM(test) {
         "test param 0\n",
         NULL
     };
-    INIT_APP(gnuboy);
+    INIT_APP(test);
 }
