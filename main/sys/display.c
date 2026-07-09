@@ -61,7 +61,7 @@ static bool on_flush_done(esp_lcd_panel_io_handle_t panel_io, esp_lcd_panel_io_e
 void* ebx_disp_render(void) {
     xSemaphoreTake(g_rend_sem, portMAX_DELAY);
     flip_buffer();
-    esp_lcd_panel_draw_bitmap(g_panel_handle, 0, 0, EBX_DISP_RES_W, EBX_DISP_RES_H, g_rend_buffer);
+    ESP_ERROR_CHECK(esp_lcd_panel_draw_bitmap(g_panel_handle, 0, 0, EBX_DISP_RES_W, EBX_DISP_RES_H, g_rend_buffer));
     return g_draw_buffer;
 }
 
