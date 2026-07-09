@@ -9,6 +9,7 @@
 #define LOG_PRINTF(level, x...) rg_system_log(RG_LOG_PRINTF, NULL, x)
 #else
 #define LOG_PRINTF(level, x...) printf(x)
+#undef IRAM_ATTR
 #define IRAM_ATTR
 #endif
 

@@ -1,18 +1,49 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "ebx_sys.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/semphr.h"
+#include "esp_err.h"
+#include "esp_log.h"
 
+#include "ebx_sys.h"
 #include "app.h"
 
-#define APP_NAME gnuboy
+#include "gnuboy/gnuboy.h"
 
-static uint8_t g_cnt = 0;
+#define APP_NAME    gnuboy
+static const char* TAG = "ebx_app_gnuboy";
+
+static SemaphoreHandle_t g_sem_draw_st = NULL;
+static SemaphoreHandle_t g_sem_draw_ed = NULL;
+
+static inline void init_sem(void) {
+    g_sem_draw_st = xSemaphoreCreateBinary();
+    g_sem_draw_ed = xSemaphoreCreateBinary();
+}
+
+static void cb_gnu_video(void* buffer) {
+    xSemaphoreTake(g_sem_draw_ed, portMAX_DELAY);
+    xSemaphoreGive(g_sem_draw_st);
+}
+
 static void do_draw(void* buffer) {
-    memset(buffer, g_cnt++, EBX_DISP_RES_W * EBX_DISP_RES_H * 2);
+    xSemaphoreGive(g_sem_draw_ed);
+    xSemaphoreTake(g_sem_draw_st, portMAX_DELAY);
+    gnuboy_set_framebuffer(buffer);
 }
 
 REG_APP {
     printf(params[0]);
+
+    if (gnuboy_init(0, GB_AUDIO_STEREO_S16, GB_PIXEL_565_BE, &cb_gnu_video, NULL) < 0) {
+        ESP_LOGE(TAG, "Emulator init failed!");
+        abort();
+    }
+
+    init_sem();
     ebx_disp_init(&do_draw);
+    for(;;) {
+        gnuboy_run(true);
+    }
 }
