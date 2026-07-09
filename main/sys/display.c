@@ -43,7 +43,7 @@ static const char* TAG = "ebx_disp";
 static cb_draw_t g_draw = NULL;
 static esp_lcd_panel_handle_t g_panel_handle = NULL;
 
-static uint8_t g_disp_buffers[2][DISP_BUFF_SZ];
+static uint8_t g_disp_buffers[2][DISP_BUFF_SZ] = {};
 static void* g_draw_buffer = g_disp_buffers[0];
 static void* g_rend_buffer = g_disp_buffers[1];
 static SemaphoreHandle_t g_rend_sem = NULL;
@@ -128,9 +128,6 @@ void ebx_disp_init(cb_draw_t cb_draw) {
     ESP_ERROR_CHECK(esp_lcd_panel_init(g_panel_handle));
     ESP_ERROR_CHECK(esp_lcd_panel_swap_xy(g_panel_handle, true));
     ESP_ERROR_CHECK(esp_lcd_panel_mirror(g_panel_handle, true, false));
-
-    memset(g_draw_buffer, 0xaa, DISP_BUFF_SZ);
-    memset(g_rend_buffer, 0x55, DISP_BUFF_SZ);
 
     g_draw = cb_draw;
     TaskHandle_t hndl_disp = NULL;
