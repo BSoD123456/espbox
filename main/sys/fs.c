@@ -3,7 +3,6 @@
 #include "freertos/FreeRTOS.h"
 #include "esp_err.h"
 #include "esp_log.h"
-#include "miniz.h"
 
 #include "esp_littlefs.h"
 
@@ -34,6 +33,4 @@ void ebx_fs_init(void) {
         .format_if_mount_failed = false
     };
     ESP_ERROR_CHECK(esp_vfs_littlefs_register(&conf));
-
-    do_test();
 }
