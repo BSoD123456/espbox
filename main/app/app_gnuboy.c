@@ -8,4 +8,5 @@
 
 REG_APP {
     printf(params[0]);
+    ebx_disp_init(NULL);
 }

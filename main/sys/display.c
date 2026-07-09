@@ -40,6 +40,7 @@ static const char* TAG = "ebx_disp";
 #define DISP_BITS_CMD       8
 #define DISP_BITS_PARAM     8
 
+static cb_draw_t g_draw = NULL;
 static esp_lcd_panel_handle_t g_panel_handle = NULL;
 
 static uint8_t g_disp_buffers[2][DISP_BUFF_SZ];
@@ -80,12 +81,15 @@ static void render_task(void* p_param) {
             g_cnt_dtick += 1000 / portTICK_PERIOD_MS;
             g_cnt_fps = 0;
         }
+        if(g_draw != NULL) {
+            g_draw(g_draw_buffer);
+        }
         do_render();
         vTaskDelay( ((cur_tick * frame1000 / 1000 + 1) * 1000 + frame1000 - 1) / frame1000 - cur_tick );
     }
 }
 
-void ebx_disp_init(void) {
+void ebx_disp_init(cb_draw_t cb_draw) {
     ESP_LOGI(TAG, "Initialize SPI bus");
     spi_bus_config_t buscfg = {
         .sclk_io_num = DISP_PIN_SCLK,
@@ -128,6 +132,7 @@ void ebx_disp_init(void) {
     memset(g_draw_buffer, 0xaa, DISP_BUFF_SZ);
     memset(g_rend_buffer, 0x55, DISP_BUFF_SZ);
 
+    g_draw = cb_draw;
     TaskHandle_t hndl_disp = NULL;
     xTaskCreate(render_task, "ebx_display", 0x1000, NULL, 3, &hndl_disp);
 }

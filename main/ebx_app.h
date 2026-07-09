@@ -4,5 +4,6 @@
 #include "app/app.h"
 
 DECL_APP(test);
+DECL_APP(gnuboy);
 
 #endif /*__INC_EBX_APP_H__*/
