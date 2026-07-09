@@ -15,26 +15,13 @@
 #define APP_NAME    gnuboy
 static const char* TAG = "ebx_app_gnuboy";
 
-static SemaphoreHandle_t g_sem_draw_st = NULL;
-static SemaphoreHandle_t g_sem_draw_ed = NULL;
-
-static inline void init_sem(void) {
-    g_sem_draw_st = xSemaphoreCreateBinary();
-    g_sem_draw_ed = xSemaphoreCreateBinary();
-}
+static char* g_rom_path = NULL;
 
 static void cb_gnu_video(void* buffer) {
-    xSemaphoreTake(g_sem_draw_ed, portMAX_DELAY);
-    xSemaphoreGive(g_sem_draw_st);
+    void* nbuf = ebx_disp_render();
+    gnuboy_set_framebuffer(nbuf);
 }
 
-static void do_draw(void* buffer) {
-    xSemaphoreGive(g_sem_draw_ed);
-    xSemaphoreTake(g_sem_draw_st, portMAX_DELAY);
-    gnuboy_set_framebuffer(buffer);
-}
-
-static char* g_rom_path = NULL;
 static void app_task(void* p_param) {
     if(gnuboy_init(0, GB_AUDIO_STEREO_S16, GB_PIXEL_565_BE, &cb_gnu_video, NULL) < 0) {
         ESP_LOGE(TAG, "init failed");
@@ -48,19 +35,25 @@ static void app_task(void* p_param) {
         ESP_LOGE(TAG, "load rom failed");
         abort();
     }
+    TickType_t tick = xTaskGetTickCount();
+    uint32_t fps = 0;
     for(;;) {
         gnuboy_run(true);
+        fps = ebx_disp_count_fps(tick);
+        if(fps > 0) {
+            ESP_LOGI(TAG, "fps: %lu", fps);
+        }
+        ebx_disp_wait_frame(&tick);
     }
 }
 
 REG_APP {
-    ebx_fs_init();
-
     size_t free_heap = heap_caps_get_free_size(MALLOC_CAP_DEFAULT);
     ESP_LOGI(TAG, "free: %zu (%zu KB)", free_heap, free_heap / 1024);
 
-    init_sem();
-    ebx_disp_init(&do_draw);
+    ebx_fs_init();
+    ebx_disp_init();
+
     g_rom_path = params[0];
     TaskHandle_t hndl_disp = NULL;
     xTaskCreate(app_task, "ebx_app_gnuboy", 0x4000, NULL, 3, &hndl_disp);

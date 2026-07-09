@@ -40,7 +40,6 @@ static const char* TAG = "ebx_disp";
 #define DISP_BITS_CMD       8
 #define DISP_BITS_PARAM     8
 
-static cb_draw_t g_draw = NULL;
 static esp_lcd_panel_handle_t g_panel_handle = NULL;
 
 static uint8_t g_disp_buffers[2][DISP_BUFF_SZ] = {};
@@ -59,37 +58,34 @@ static bool on_flush_done(esp_lcd_panel_io_handle_t panel_io, esp_lcd_panel_io_e
     return false;
 }
 
-static void do_render(void) {
+void* ebx_disp_render(void) {
     flip_buffer();
     xSemaphoreTake(g_rend_sem, portMAX_DELAY);
     esp_lcd_panel_draw_bitmap(g_panel_handle, 0, 0, EBX_DISP_RES_W, EBX_DISP_RES_H, g_rend_buffer);
+    return g_draw_buffer;
 }
 
-static void render_task(void* p_param) {
-    const TickType_t frame1000 = EBX_DISP_FPS * portTICK_PERIOD_MS; 
-    TickType_t cur_tick = xTaskGetTickCount();
-    TickType_t g_cnt_fps = 0;
-    TickType_t g_cnt_dtick = cur_tick;
+void ebx_disp_wait_frame(TickType_t* p_tick) {
+    vTaskDelay( ((*p_tick * EBX_DISP_FPS * portTICK_PERIOD_MS / 1000 + 1) * 1000 + EBX_DISP_FPS * portTICK_PERIOD_MS - 1) / (EBX_DISP_FPS * portTICK_PERIOD_MS) - *p_tick );
+    *p_tick = xTaskGetTickCount();
+}
 
-    g_rend_sem = xSemaphoreCreateBinary();
-    xSemaphoreGive(g_rend_sem);
-    for(;;) {
-        cur_tick = xTaskGetTickCount();
-        g_cnt_fps++;
-        if(cur_tick >= g_cnt_dtick) {
-            ESP_LOGI(TAG, "fps: %lu", g_cnt_fps);
-            g_cnt_dtick += 1000 / portTICK_PERIOD_MS;
-            g_cnt_fps = 0;
+uint32_t ebx_disp_count_fps(TickType_t tick) {
+    static int32_t cnt_frame = 0;
+    static TickType_t nxt_tick = 0;
+    uint32_t r_fps = 0;
+    cnt_frame++;
+    if(tick >= nxt_tick) {
+        if(nxt_tick > 0) {
+            r_fps = cnt_frame;
+            cnt_frame = 0;
         }
-        if(g_draw != NULL) {
-            g_draw(g_draw_buffer);
-        }
-        do_render();
-        vTaskDelay( ((cur_tick * frame1000 / 1000 + 1) * 1000 + frame1000 - 1) / frame1000 - cur_tick );
+        nxt_tick += 1000 / portTICK_PERIOD_MS;
     }
+    return r_fps;
 }
 
-void ebx_disp_init(cb_draw_t cb_draw) {
+void ebx_disp_init(void) {
     ESP_LOGI(TAG, "Initialize SPI bus");
     spi_bus_config_t buscfg = {
         .sclk_io_num = DISP_PIN_SCLK,
@@ -129,8 +125,7 @@ void ebx_disp_init(cb_draw_t cb_draw) {
     ESP_ERROR_CHECK(esp_lcd_panel_swap_xy(g_panel_handle, true));
     ESP_ERROR_CHECK(esp_lcd_panel_mirror(g_panel_handle, true, false));
 
-    g_draw = cb_draw;
-    TaskHandle_t hndl_disp = NULL;
-    xTaskCreate(render_task, "ebx_display", 0x1000, NULL, 3, &hndl_disp);
+    g_rend_sem = xSemaphoreCreateBinary();
+    xSemaphoreGive(g_rend_sem);
 }
 
