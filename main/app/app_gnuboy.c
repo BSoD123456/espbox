@@ -64,6 +64,7 @@ REG_APP {
 
     ebx_fs_init();
     ebx_disp_init();
+    ebx_input_init();
 
     g_rom_path = params[0];
     TaskHandle_t hndl_disp = NULL;
