@@ -45,7 +45,7 @@ static void app_task(void* p_param) {
     for(;;) {
         gnuboy_run(do_draw);
         if(do_draw) {
-            skpln = (skpln + 1) % GB_SKIPLINE_CYCLE;
+            skpln = (skpln + 1) % 2; // % GB_SKIPLINE_CYCLE;
             gnuboy_set_skipline(skpln);
             cnt_draw++;
         }
