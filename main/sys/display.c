@@ -65,12 +65,22 @@ void* ebx_disp_render(void) {
     return g_draw_buffer;
 }
 
-void ebx_disp_wait_frame(TickType_t* p_tick) {
-    vTaskDelay( ((*p_tick * EBX_DISP_FPS * portTICK_PERIOD_MS / 1000 + 1) * 1000 + EBX_DISP_FPS * portTICK_PERIOD_MS - 1) / (EBX_DISP_FPS * portTICK_PERIOD_MS) - *p_tick );
-    *p_tick = xTaskGetTickCount();
+int32_t ebx_disp_wait_frame(uint32_t* p_tick) {
+    TickType_t nxt_tick = ((*p_tick * EBX_DISP_FPS * portTICK_PERIOD_MS / 1000 + 1) * 1000 + EBX_DISP_FPS * portTICK_PERIOD_MS - 1) / (EBX_DISP_FPS * portTICK_PERIOD_MS);
+    TickType_t cur_tick = xTaskGetTickCount();
+    int32_t delt;
+    if(nxt_tick > cur_tick) {
+        delt = nxt_tick - cur_tick;
+        vTaskDelay(delt);
+        *p_tick = nxt_tick;
+    } else {
+        delt = -(int32_t)(cur_tick - nxt_tick);
+        *p_tick = cur_tick;
+    }
+    return delt;
 }
 
-uint32_t ebx_disp_count_fps(TickType_t tick) {
+uint32_t ebx_disp_count_fps(uint32_t tick) {
     static int32_t cnt_frame = 0;
     static TickType_t nxt_tick = 0;
     uint32_t r_fps = 0;

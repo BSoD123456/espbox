@@ -39,13 +39,17 @@ static void app_task(void* p_param) {
     gnuboy_set_framebuffer(gb_buf);
     TickType_t tick = xTaskGetTickCount();
     uint32_t fps = 0;
+    bool do_draw = true;
+    uint32_t cnt_draw = 0;
     for(;;) {
-        gnuboy_run(true);
+        gnuboy_run(do_draw);
+        if(do_draw) cnt_draw++;
         fps = ebx_disp_count_fps(tick);
         if(fps > 0) {
-            ESP_LOGI(TAG, "fps: %lu", fps);
+            ESP_LOGI(TAG, "fps: %lu (%lu)", fps, cnt_draw);
+            cnt_draw = 0;
         }
-        ebx_disp_wait_frame(&tick);
+        do_draw = (ebx_disp_wait_frame(&tick) >= 0);
     }
 }
 
