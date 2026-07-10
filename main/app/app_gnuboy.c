@@ -20,8 +20,21 @@ static const char* TAG = "ebx_app_gnuboy";
 static char* g_rom_path = NULL;
 
 static void cb_gb_video(void* buffer) {
-    void* nbuf = ebx_disp_render(); //_at(0, 0, GB_WIDTH / 2, GB_HEIGHT / 2);
-    gnuboy_set_framebuffer(nbuf);
+    void* nbuf = ebx_disp_render();
+    //gnuboy_set_framebuffer(nbuf);
+    for(int i = 0; i < 160 * 128; i++) {
+        uint16_t c;
+        if(i < 160 * 32) {
+            c = 0x1f;
+        } else if(i < 160 * 64) {
+            c = 0x3e0;
+        } else if(i < 160 * 96) {
+            c = 0x7c00;
+        } else {
+            c = 0x0;
+        }
+        *(uint16_t*)(nbuf + i*2) = c;
+    }
 }
 
 static void app_task(void* p_param) {
