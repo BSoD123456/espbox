@@ -38,15 +38,15 @@ static void app_task(void* p_param) {
         abort();
     }
     TickType_t tick = xTaskGetTickCount();
-    uint8_t skpln = 0;
+    //uint8_t skpln = 0;
     uint32_t fps = 0;
     bool do_draw = true;
     uint32_t cnt_draw = 0;
     for(;;) {
         gnuboy_run(do_draw);
         if(do_draw) {
-            skpln = (skpln + 1) % 2; // % GB_SKIPLINE_CYCLE;
-            gnuboy_set_skipline(skpln);
+            //skpln = (skpln + 1) % 2; // % GB_SKIPLINE_CYCLE;
+            //gnuboy_set_skipline(skpln);
             cnt_draw++;
         }
         fps = ebx_disp_count_fps(tick);
