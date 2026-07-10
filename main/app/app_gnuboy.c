@@ -15,15 +15,17 @@
 #define APP_NAME    gnuboy
 static const char* TAG = "ebx_app_gnuboy";
 
+#define GB_SKIPLINE_CYCLE   9
+
 static char* g_rom_path = NULL;
 
 static void cb_gb_video(void* buffer) {
-    void* nbuf = ebx_disp_render_at(0, 0, GB_WIDTH / 2, GB_HEIGHT / 2);
+    void* nbuf = ebx_disp_render(); //_at(0, 0, GB_WIDTH / 2, GB_HEIGHT / 2);
     gnuboy_set_framebuffer(nbuf);
 }
 
 static void app_task(void* p_param) {
-    if(gnuboy_init_custom(GB_PIXEL_565_BE, &cb_gb_video, 1) < 0) {
+    if(gnuboy_init_custom(GB_PIXEL_565_BE, &cb_gb_video, 0, GB_SKIPLINE_CYCLE) < 0) {
         ESP_LOGE(TAG, "init failed");
         abort();
     }
@@ -36,12 +38,17 @@ static void app_task(void* p_param) {
         abort();
     }
     TickType_t tick = xTaskGetTickCount();
+    uint8_t skpln = 0;
     uint32_t fps = 0;
     bool do_draw = true;
     uint32_t cnt_draw = 0;
     for(;;) {
         gnuboy_run(do_draw);
-        if(do_draw) cnt_draw++;
+        if(do_draw) {
+            skpln = (skpln + 1) % GB_SKIPLINE_CYCLE;
+            gnuboy_set_skipline(skpln);
+            cnt_draw++;
+        }
         fps = ebx_disp_count_fps(tick);
         if(fps > 0) {
             ESP_LOGI(TAG, "fps: %lu (%lu)", fps, cnt_draw);
