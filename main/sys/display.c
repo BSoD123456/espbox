@@ -72,11 +72,10 @@ int32_t ebx_disp_wait_frame(uint32_t* p_tick) {
     if(nxt_tick > cur_tick) {
         delt = nxt_tick - cur_tick;
         vTaskDelay(delt);
-        *p_tick = nxt_tick;
     } else {
         delt = -(int32_t)(cur_tick - nxt_tick);
-        *p_tick = cur_tick;
     }
+    *p_tick = nxt_tick;
     return delt;
 }
 
