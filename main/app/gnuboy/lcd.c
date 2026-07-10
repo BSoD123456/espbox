@@ -713,13 +713,16 @@ static inline void lcd_renderline()
         uint16_t *pal = host.video.palette;
         if (skpln_delt == 0) {
             for (int i = 0; i < 160; ++i) {
+                uint16_t vd = pal[BUF[i]];
                 uint16_t v1 = dst[i];
-                uint16_t v2 = pal[BUF[i]];
+                uint16_t v2 = (((vd & 0xe0ff) << 1) | (vd & 0x1f00) | (vd >> 15));
                 dst[i] = (v1 & v2) + (((v1 ^ v2) & 0x3def) << 1);
             }
         } else {
             for (int i = 0; i < 160; ++i) {
-                dst[i] = pal[BUF[i]];
+                uint16_t vd = pal[BUF[i]];
+                // RGB555BE -> RGB565BE
+                dst[i] = (((vd & 0xe0ff) << 1) | (vd & 0x1f00) | (vd >> 15));
             }
         }
     }

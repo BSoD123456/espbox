@@ -21,22 +21,12 @@ static char* g_rom_path = NULL;
 
 static void cb_gb_video(void* buffer) {
     void* nbuf = ebx_disp_render();
-    //gnuboy_set_framebuffer(nbuf);
-    for(int i = 0; i < 160 * 128; i++) {
+    gnuboy_set_framebuffer(nbuf);
+    /*for(int i = 0; i < 160 * 128; i++) {
         uint16_t c = (1 << (i / 1280));
-        /*if(i < 160 * 32) {
-            c = 0x10;
-        } else if(i < 160 * 64) {
-            c = 0x20;
-        } else if(i < 160 * 96) {
-            c = 0x8;
-        } else {
-            c = 0x40;
-        }*/
-        //*(uint16_t*)(nbuf + i*2) = c;
         *(uint8_t*)(nbuf + i*2) = (c >> 8);
         *(uint8_t*)(nbuf + i*2 + 1) = (c & 0xff);
-    }
+    }*/
 }
 
 static void app_task(void* p_param) {
