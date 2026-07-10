@@ -15,7 +15,7 @@
 #define APP_NAME    gnuboy
 static const char* TAG = "ebx_app_gnuboy";
 
-#define GB_SKIPLINE_CYCLE   9
+#define GB_SKIPLINE_CYCLE   (GB_HEIGHT / (GB_HEIGHT - EBX_DISP_RES_H))
 
 static char* g_rom_path = NULL;
 
@@ -38,15 +38,12 @@ static void app_task(void* p_param) {
         abort();
     }
     TickType_t tick = xTaskGetTickCount();
-    //uint8_t skpln = 0;
     uint32_t fps = 0;
     bool do_draw = true;
     uint32_t cnt_draw = 0;
     for(;;) {
         gnuboy_run(do_draw);
         if(do_draw) {
-            //skpln = (skpln + 1) % 2; // % GB_SKIPLINE_CYCLE;
-            //gnuboy_set_skipline(skpln);
             cnt_draw++;
         }
         fps = ebx_disp_count_fps(tick);
