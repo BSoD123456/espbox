@@ -91,7 +91,7 @@ void gb_sound_reset(bool hard)
 
 void gb_sound_emulate(void)
 {
-	if (!snd.rate || snd.cycles < snd.rate)
+	if (!host.audio.enabled || !snd.rate || snd.cycles < snd.rate)
 		return;
 
 	int16_t *output_buf = host.audio.buffer + host.audio.pos;
@@ -253,7 +253,7 @@ void gb_sound_emulate(void)
 
 void gb_sound_write(byte r, byte b)
 {
-	if (!(R_NR52 & 128) && r != RI_NR52)
+	if (!host.audio.enabled || (!(R_NR52 & 128) && r != RI_NR52))
 		return;
 
 	if (snd.cycles >= snd.rate)

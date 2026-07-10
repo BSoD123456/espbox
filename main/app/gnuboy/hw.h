@@ -233,6 +233,7 @@ typedef struct
 
 	struct {
 		bool enabled;
+        uint8_t scale;
 		gb_video_fmt_t format;
 		gb_palette_t colorize;
 		gb_video_cb_t *callback;

@@ -19,11 +19,11 @@ static char* g_rom_path = NULL;
 
 static void cb_gb_video(void* buffer) {
     void* nbuf = ebx_disp_render();
-    memcpy(nbuf, buffer, GB_WIDTH * GB_HEIGHT);
+    gnuboy_set_framebuffer(nbuf);
 }
 
 static void app_task(void* p_param) {
-    if(gnuboy_init(0, GB_AUDIO_STEREO_S16, GB_PIXEL_565_BE, &cb_gb_video, NULL) < 0) {
+    if(gnuboy_init_custom(GB_PIXEL_565_BE, &cb_gb_video, 1) < 0) {
         ESP_LOGE(TAG, "init failed");
         abort();
     }
@@ -35,8 +35,6 @@ static void app_task(void* p_param) {
         ESP_LOGE(TAG, "load rom failed");
         abort();
     }
-    uint8_t* gb_buf = malloc(GB_WIDTH * GB_HEIGHT);
-    gnuboy_set_framebuffer(gb_buf);
     TickType_t tick = xTaskGetTickCount();
     uint32_t fps = 0;
     bool do_draw = true;

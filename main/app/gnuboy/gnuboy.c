@@ -31,6 +31,19 @@ int gnuboy_init(int samplerate, gb_audio_fmt_t audio_fmt, gb_video_fmt_t video_f
 	return 0;
 }
 
+int gnuboy_init_custom(gb_video_fmt_t video_fmt, gb_video_cb_t *video_callback, uint8_t video_scale)
+{
+	GB = (gb_t){
+		.video.colorize = GB_PALETTE_CGB,
+		.video.format = video_fmt,
+		.video.callback = video_callback,
+        .video.scale = video_scale,
+        .audio.enabled = false,
+	};
+	if (!gb_hw_init())
+		return -1;
+	return 0;
+}
 
 /*
  * gnuboy_reset is called to initialize the state of the emulated

@@ -635,6 +635,11 @@ static inline void lcd_renderline()
 	if (!host.video.enabled || !host.video.buffer)
 		return;
 
+    uint8_t vscale = host.video.scale ? host.video.scale + 1 : 0;
+    if (vscale && R_LY % vscale) {
+        return;
+    }
+
 	byte PRI[0x100];
 	int WND[64];
 	int BG[64];
@@ -690,18 +695,32 @@ static inline void lcd_renderline()
 		sync_palette();
 	}
 
-	if (host.video.format == GB_PIXEL_PALETTED)
-	{
-		memcpy(host.video.buffer8 + SL * 160 , BUF, 160);
-	}
-	else
-	{
-		uint16_t *dst = host.video.buffer16 + SL * 160;
-		uint16_t *pal = host.video.palette;
+    if(vscale) {
+        uint8_t vwid = 160 / vscale;
+        if (host.video.format == GB_PIXEL_PALETTED) {
+            uint8_t *dst = host.video.buffer8 + SL / vscale * vwid;
+            for (int i = 0; i < vwid; ++i)
+                dst[i] = BUF[i * vscale];
+        } else {
+            uint16_t *dst = host.video.buffer16 + SL / vscale * vwid;
+            uint16_t *pal = host.video.palette;
+            for (int i = 0; i < vwid; ++i)
+                dst[i] = pal[BUF[i * vscale]];
+        }
+    } else {
+        if (host.video.format == GB_PIXEL_PALETTED)
+        {
+            memcpy(host.video.buffer8 + SL * 160 , BUF, 160);
+        }
+        else
+        {
+            uint16_t *dst = host.video.buffer16 + SL * 160;
+            uint16_t *pal = host.video.palette;
 
-		for (int i = 0; i < 160; ++i)
-			dst[i] = pal[BUF[i]];
-	}
+            for (int i = 0; i < 160; ++i)
+                dst[i] = pal[BUF[i]];
+        }
+    }
 }
 
 void gb_lcd_emulate(int cycles)
