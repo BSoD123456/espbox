@@ -31,13 +31,12 @@ int gnuboy_init(int samplerate, gb_audio_fmt_t audio_fmt, gb_video_fmt_t video_f
 	return 0;
 }
 
-int gnuboy_init_custom(gb_video_fmt_t video_fmt, gb_video_cb_t *video_callback, uint8_t video_scale, uint8_t skpln_cyc)
+int gnuboy_init_custom(gb_video_fmt_t video_fmt, gb_video_cb_t *video_callback, uint8_t skpln_cyc)
 {
 	GB = (gb_t){
 		.video.colorize = GB_PALETTE_CGB,
 		.video.format = video_fmt,
 		.video.callback = video_callback,
-        .video.scale = video_scale,
         .video.skipline_cycle = skpln_cyc,
         .video.skipline = 0,
         .audio.enabled = false,

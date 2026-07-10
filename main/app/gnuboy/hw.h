@@ -233,7 +233,6 @@ typedef struct
 
 	struct {
 		bool enabled;
-        uint8_t scale;
         uint8_t skipline;
         uint8_t skipline_cycle;
 		gb_video_fmt_t format;

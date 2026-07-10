@@ -122,7 +122,7 @@ void ebx_disp_init(void) {
 
     esp_lcd_panel_dev_config_t panel_config = {
         .reset_gpio_num = DISP_PIN_LCD_RST,
-        .rgb_ele_order = LCD_RGB_ELEMENT_ORDER_BGR,
+        .rgb_ele_order = LCD_RGB_ELEMENT_ORDER_RGB,
         .bits_per_pixel = DISP_BYTES_PIXEL * 8,
     };
 

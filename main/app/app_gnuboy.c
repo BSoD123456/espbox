@@ -25,7 +25,7 @@ static void cb_gb_video(void* buffer) {
 }
 
 static void app_task(void* p_param) {
-    if(gnuboy_init_custom(GB_PIXEL_565_BE, &cb_gb_video, 0, GB_SKIPLINE_CYCLE) < 0) {
+    if(gnuboy_init_custom(GB_PIXEL_565_BE, &cb_gb_video, GB_SKIPLINE_CYCLE) < 0) {
         ESP_LOGE(TAG, "init failed");
         abort();
     }
