@@ -18,7 +18,7 @@ static const char* TAG = "ebx_app_gnuboy";
 static char* g_rom_path = NULL;
 
 static void cb_gb_video(void* buffer) {
-    void* nbuf = ebx_disp_render();
+    void* nbuf = ebx_disp_render_at(0, 0, GB_WIDTH / 2, GB_HEIGHT / 2);
     gnuboy_set_framebuffer(nbuf);
 }
 

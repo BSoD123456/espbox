@@ -6,8 +6,12 @@
 #define EBX_DISP_RES_H      128
 
 void ebx_disp_init(void);
-void* ebx_disp_render(void);
+void* ebx_disp_render_at(int x_start, int y_start, int x_end, int y_end);
 int32_t ebx_disp_wait_frame(uint32_t* p_tick);
 uint32_t ebx_disp_count_fps(uint32_t tick);
+
+inline void* ebx_disp_render(void) {
+    return ebx_disp_render_at(0, 0, EBX_DISP_RES_W, EBX_DISP_RES_H);
+}
 
 #endif /*__INC_EBX_DISPLAY_H__*/
