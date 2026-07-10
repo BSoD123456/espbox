@@ -21,8 +21,8 @@ static char* g_rom_path = NULL;
 
 static void cb_gb_video(void* buffer) {
     void* nbuf = ebx_disp_render();
-    //gnuboy_set_framebuffer(nbuf);
-    for(int i = 0; i < 160 * 128; i++) {
+    gnuboy_set_framebuffer(nbuf);
+    /*for(int i = 0; i < 160 * 128; i++) {
         uint16_t c;
         if(i < 160 * 32) {
             c = 0x1f;
@@ -34,7 +34,7 @@ static void cb_gb_video(void* buffer) {
             c = 0x0;
         }
         *(uint16_t*)(nbuf + i*2) = c;
-    }
+    }*/
 }
 
 static void app_task(void* p_param) {

@@ -639,7 +639,10 @@ static inline void lcd_renderline()
     int skpln_delt = 1;
     if (host.video.skipline_cycle) {
         skpln_delt = (int)(bufln % host.video.skipline_cycle) - (int)host.video.skipline;
-        if (host.video.format == GB_PIXEL_PALETTED && skpln_delt == 0) return;
+        if (skpln_delt == 0 && (
+                    !host.video.skipline_merge ||
+                    host.video.format == GB_PIXEL_PALETTED ))
+            return;
         bufln -= bufln / host.video.skipline_cycle;
         if (skpln_delt >= 0) {
             if(bufln == 0)
@@ -712,7 +715,7 @@ static inline void lcd_renderline()
             for (int i = 0; i < 160; ++i) {
                 uint16_t v1 = dst[i];
                 uint16_t v2 = pal[BUF[i]];
-                dst[i] = (v1 & v2) + (((v1 ^ v2) & 0xF7DE) >> 1);
+                dst[i] = (v1 & v2) + (((v1 ^ v2) & 0x3def) << 1);
             }
         } else {
             for (int i = 0; i < 160; ++i) {

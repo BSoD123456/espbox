@@ -39,6 +39,7 @@ int gnuboy_init_custom(gb_video_fmt_t video_fmt, gb_video_cb_t *video_callback, 
 		.video.callback = video_callback,
         .video.skipline_cycle = skpln_cyc,
         .video.skipline = 0,
+        .video.skipline_merge = true,
         .audio.enabled = false,
 	};
 	if (!gb_hw_init())

@@ -235,6 +235,7 @@ typedef struct
 		bool enabled;
         uint8_t skipline;
         uint8_t skipline_cycle;
+        bool skipline_merge;
 		gb_video_fmt_t format;
 		gb_palette_t colorize;
 		gb_video_cb_t *callback;
