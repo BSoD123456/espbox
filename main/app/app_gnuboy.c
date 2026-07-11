@@ -17,6 +17,8 @@ static const char* TAG = "ebx_app_gnuboy";
 
 #define GB_SKIPLINE_CYCLE   (GB_HEIGHT / (GB_HEIGHT - EBX_DISP_RES_H))
 
+#define DISP_MIN_FPS 10
+
 static char* g_rom_path = NULL;
 
 static void cb_gb_video(void* buffer) {
@@ -43,6 +45,7 @@ static void app_task(void* p_param) {
     uint32_t cnt_draw = 0;
     uint32_t keys = 0;
     uint32_t last_keys = 0;
+    uint32_t cnt_skip = 0;
     for(;;) {
         keys = ebx_ipt_get();
         if(keys != last_keys) {
@@ -60,6 +63,14 @@ static void app_task(void* p_param) {
         gnuboy_run(do_draw);
         if(do_draw) {
             cnt_draw++;
+            cnt_skip = 0;
+        } else {
+            cnt_skip++;
+#ifdef DISP_MIN_FPS
+            if(cnt_skip > EBX_DISP_FPS / DISP_MIN_FPS) {
+                ebx_disp_drop_frame(&tick);
+            }
+#endif /*DISP_MIN_FPS*/
         }
         fps = ebx_disp_count_fps_cur();//(tick);
         if(fps > 0) {

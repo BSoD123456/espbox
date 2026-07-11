@@ -8,6 +8,7 @@
 void ebx_disp_init(void);
 void* ebx_disp_render_at(int x_start, int y_start, int x_end, int y_end);
 int32_t ebx_disp_wait_frame(uint32_t* p_tick);
+void ebx_disp_drop_frame(uint32_t* p_tick);
 uint32_t ebx_disp_count_fps(uint32_t tick);
 uint32_t ebx_disp_count_fps_cur(void);
 

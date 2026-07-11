@@ -79,6 +79,10 @@ int32_t ebx_disp_wait_frame(uint32_t* p_tick) {
     return delt;
 }
 
+void ebx_disp_drop_frame(uint32_t* p_tick) {
+    *p_tick = xTaskGetTickCount();
+}
+
 uint32_t ebx_disp_count_fps(uint32_t tick) {
     static int32_t cnt_frame = 0;
     static TickType_t nxt_tick = 0;
