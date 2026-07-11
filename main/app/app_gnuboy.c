@@ -61,7 +61,7 @@ static void app_task(void* p_param) {
         if(do_draw) {
             cnt_draw++;
         }
-        fps = ebx_disp_count_fps(tick);
+        fps = ebx_disp_count_fps_cur();//(tick);
         if(fps > 0) {
             ESP_LOGI(TAG, "fps: %lu (%lu)", fps, cnt_draw);
             cnt_draw = 0;

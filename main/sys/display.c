@@ -94,6 +94,10 @@ uint32_t ebx_disp_count_fps(uint32_t tick) {
     return r_fps;
 }
 
+uint32_t ebx_disp_count_fps_cur(void) {
+    return ebx_disp_count_fps(xTaskGetTickCount());
+}
+
 void ebx_disp_init(void) {
     ESP_LOGI(TAG, "Initialize SPI bus");
     spi_bus_config_t buscfg = {
