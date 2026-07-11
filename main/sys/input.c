@@ -19,11 +19,34 @@
 
 //static const char* TAG = "ebx_input";
 
-void ebx_input_init(void) {
-    INIT_BTN(BTN_PIN_UP);
-    INIT_BTN(BTN_PIN_DOWN);
-    INIT_BTN(BTN_PIN_LEFT);
-    INIT_BTN(BTN_PIN_RIGHT);
-    INIT_BTN(BTN_PIN_A);
-    INIT_BTN(BTN_PIN_B);
+static struct {
+    gpio_num_t pin;
+    bool pullup;
+} g_keymap[] = {
+    {BTN_PIN_UP, true},
+    {BTN_PIN_DOWN, true},
+    {BTN_PIN_LEFT, true},
+    {BTN_PIN_RIGHT, false},
+    {BTN_PIN_A, false},
+    {BTN_PIN_B, true},
+};
+
+uint32_t ebx_ipt_get(void) {
+    uint32_t keys = 0;
+    for(int i = 0; i < EBX_IPT_NUM_KEYS; i++) {
+        int kv = gpio_get_level(g_keymap[i].pin);
+        if(!kv) {
+            keys |= (1 << i);
+        }
+    }
+    return keys;
+}
+
+void ebx_ipt_init(void) {
+    for(int i = 0; i < EBX_IPT_NUM_KEYS; i++) {
+        ESP_ERROR_CHECK(gpio_set_direction(g_keymap[i].pin, GPIO_MODE_INPUT));
+        if(g_keymap[i].pullup) {
+            ESP_ERROR_CHECK(gpio_set_pull_mode(g_keymap[i].pin, GPIO_PULLUP_ONLY));
+        }
+    }
 }

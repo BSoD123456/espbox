@@ -41,7 +41,22 @@ static void app_task(void* p_param) {
     uint32_t fps = 0;
     bool do_draw = true;
     uint32_t cnt_draw = 0;
+    uint32_t keys = 0;
+    uint32_t last_keys = 0;
     for(;;) {
+        keys = ebx_ipt_get();
+        if(keys != last_keys) {
+            int pad = 0;
+            if(EBX_IPT_CHK_KEYS(keys, EBX_IPT_KEY_UP)) pad |= GB_PAD_UP;
+            if(EBX_IPT_CHK_KEYS(keys, EBX_IPT_KEY_DOWN)) pad |= GB_PAD_DOWN;
+            if(EBX_IPT_CHK_KEYS(keys, EBX_IPT_KEY_LEFT)) pad |= GB_PAD_LEFT;
+            if(EBX_IPT_CHK_KEYS(keys, EBX_IPT_KEY_RIGHT)) pad |= GB_PAD_RIGHT;
+            if(EBX_IPT_CHK_KEYS(keys, EBX_IPT_KEY_A)) pad |= GB_PAD_A;
+            if(EBX_IPT_CHK_KEYS(keys, EBX_IPT_KEY_B)) pad |= GB_PAD_START;
+            gnuboy_set_pad(pad);
+            ESP_LOGI(TAG, "pad 0x%lx", keys);
+            last_keys = keys;
+        }
         gnuboy_run(do_draw);
         if(do_draw) {
             cnt_draw++;
@@ -61,7 +76,7 @@ REG_APP {
 
     ebx_fs_init();
     ebx_disp_init();
-    ebx_input_init();
+    ebx_ipt_init();
 
     g_rom_path = params[0];
     TaskHandle_t hndl_disp = NULL;
