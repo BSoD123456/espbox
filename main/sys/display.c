@@ -15,11 +15,6 @@
 
 #include "ebx_display.h"
 
-typedef struct {
-    esp_lcd_panel_handle_t hndl;
-    uint8_t fps;
-} task_param_t;
-
 static const char* TAG = "ebx_disp";
 
 #define DISP_RES_LCD_W      EBX_DISP_RES_H
