@@ -81,6 +81,8 @@ static void app_task(void* p_param) {
     }
 }
 
+#inlcude "gnuboy_cart_exmem.h"
+
 REG_APP {
     size_t free_heap = heap_caps_get_free_size(MALLOC_CAP_DEFAULT);
     ESP_LOGI(TAG, "free: %zu (%zu KB)", free_heap, free_heap / 1024);

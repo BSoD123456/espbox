@@ -27,4 +27,3 @@ MAKE_EXMEM_ACCESS(read, (void* buf), {
 MAKE_EXMEM_ACCESS(write, (void* buf), {
     memcpy(ext_buf + bofs, buf, size);
 });
-
