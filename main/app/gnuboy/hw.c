@@ -290,7 +290,7 @@ void gb_hw_updatemap(void)
 
 	if (cart.rombanks[rombank] == NULL)
 	{
-		gnuboy_load_bank(rombank);
+		cart.cb_load_rombank(rombank);
 	}
 
 	// ROM

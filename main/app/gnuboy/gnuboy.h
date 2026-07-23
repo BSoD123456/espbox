@@ -113,7 +113,7 @@ void gnuboy_free_rom(void);
 void gnuboy_reset(bool hard);
 void gnuboy_run(bool draw);
 bool gnuboy_sram_dirty(void);
-void gnuboy_load_bank(int);
+//void gnuboy_load_bank(int);
 void gnuboy_set_pad(int);
 
 void gnuboy_set_framebuffer(void *buffer);

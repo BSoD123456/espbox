@@ -203,6 +203,8 @@ typedef struct
 	// File descriptors that we keep open
 	FILE *romFile;
 	FILE *sramFile;
+    
+    void(*cb_load_rombank)(int bank);
 } gb_cart_t;
 
 typedef struct

@@ -193,7 +193,7 @@ int gnuboy_load_bios_file(const char *file)
 }
 
 
-void gnuboy_load_bank(int bank)
+static void gnuboy_load_bank(int bank)
 {
 	const size_t OFFSET = bank * BANK_SIZE;
 
@@ -321,6 +321,10 @@ int gnuboy_load_rom(const byte *data, size_t size)
 		MESSAGE_ERROR("Memory allocation failed.");
 		return -3;
 	}
+    
+    if(cart.cb_load_rombank == NULL) {
+        cart.cb_load_rombank = &gnuboy_load_bank;
+    }
 
 	for (size_t pos = 0; size - pos >= BANK_SIZE; pos += BANK_SIZE)
 	{
@@ -466,10 +470,15 @@ int gnuboy_load_rom_file(const char *file)
 	MESSAGE_INFO("Preloading the first %d banks\n", preload);
 	for (int i = 0; i < preload; i++)
 	{
-		gnuboy_load_bank(i);
+		cart.cb_load_rombank(i);
 	}
 
 	return 0;
+}
+
+int gnuboy_load_rom_custom(void(*cb_load_rombank)(int bank)) {
+    MESSAGE_INFO("Loading file: '%s'\n", file);
+    
 }
 
 
