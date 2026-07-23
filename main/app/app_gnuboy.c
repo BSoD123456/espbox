@@ -15,6 +15,8 @@
 #define APP_NAME    gnuboy
 static const char* TAG = "ebx_app_gnuboy";
 
+#inlcude "gnuboy_cart_exmem.h"
+
 #define GB_SKIPLINE_CYCLE   (GB_HEIGHT / (GB_HEIGHT - EBX_DISP_RES_H))
 
 #define DISP_MIN_FPS 10
@@ -35,6 +37,7 @@ static void app_task(void* p_param) {
         ESP_LOGE(TAG, "load bios failed");
         abort();
     }
+    cart_init();
     if(gnuboy_load_rom_file(g_rom_path) < 0) {
         ESP_LOGE(TAG, "load rom failed");
         abort();
@@ -80,8 +83,6 @@ static void app_task(void* p_param) {
         do_draw = (ebx_disp_wait_frame(&tick) >= 0);
     }
 }
-
-#inlcude "gnuboy_cart_exmem.h"
 
 REG_APP {
     size_t free_heap = heap_caps_get_free_size(MALLOC_CAP_DEFAULT);
