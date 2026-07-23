@@ -18,3 +18,7 @@ void ebx_exmem_alloc_stream(ebx_exmem_hndl_t mh) {
     stm->cur_blk_buf = NULL;
     return stm;
 }
+
+void ebx_exmem_write(ebx_exmem_hndl_t mh, void* buf, size_t len) {
+    
+}
