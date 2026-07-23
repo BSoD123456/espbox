@@ -44,7 +44,7 @@ static inline void ebx_exmem_free(ebx_exmem_hndl_t mh) {
 static inline ebx_exmem_ctx_t ebx_exmem_alloc_ctx(ebx_exmem_hndl_t mh, size_t blen) {
     ebx_exmem_ctx_t ctx;
     ESP_ERROR_CHECK(esp_himem_alloc_map_range(ebx_exmem_blk2sz(blen), &ctx));
-    return ctx
+    return ctx;
 }
 
 static inline void ebx_exmem_free_ctx(ebx_exmem_ctx_t ctx) {
@@ -60,5 +60,8 @@ static inline void* ebx_exmem_map(ebx_exmem_hndl_t mh, ebx_exmem_ctx_t ctx, size
 static inline void ebx_exmem_unmap(ebx_exmem_ctx_t ctx, void* buf, size_t blen) {
     ESP_ERROR_CHECK(esp_himem_unmap(ctx, buf, ebx_exmem_blk2sz(blen)));
 }
+
+void ebx_exmem_read(ebx_exmem_hndl_t mh, size_t ofs, size_t size, void* buf);
+void ebx_exmem_write(ebx_exmem_hndl_t mh, size_t ofs, size_t size, void* buf);
 
 #endif /*__INC_EBX_EXMEM_H__*/
