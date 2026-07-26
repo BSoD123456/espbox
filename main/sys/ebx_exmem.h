@@ -31,6 +31,10 @@ static inline size_t ebx_exmem_blk2sz(size_t blk) {
     return blk * EBX_EXMEM_BLKSZ;
 }
 
+static inline size_t ebx_exmem_buf2bidx(void* base, void* buf) {
+    return DIV_FLOOR(buf - base, EBX_EXMEM_BLKSZ);
+}
+
 static inline ebx_exmem_hndl_t ebx_exmem_alloc(size_t blen) {
     ebx_exmem_hndl_t mh;
     ESP_ERROR_CHECK(esp_himem_alloc(ebx_exmem_blk2sz(blen), &mh));
@@ -59,6 +63,10 @@ static inline void* ebx_exmem_map(ebx_exmem_hndl_t mh, ebx_exmem_ctx_t ctx, size
 
 static inline void ebx_exmem_unmap(ebx_exmem_ctx_t ctx, void* buf, size_t blen) {
     ESP_ERROR_CHECK(esp_himem_unmap(ctx, buf, ebx_exmem_blk2sz(blen)));
+}
+
+static inline void* ebx_exmem_get_ctx_base(ebx_exmem_hndl_t mh, ebx_exmem_ctx_t ctx) {
+    return ebx_exmem_map(mh, ctx, 0, 0, 0);
 }
 
 void ebx_exmem_read(ebx_exmem_hndl_t mh, size_t ofs, size_t size, void* buf);
