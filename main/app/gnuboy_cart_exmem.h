@@ -6,7 +6,7 @@
 #define CART_MAX_SZ         0x400000
 #define CART_MAX_BLEN       ebx_exmem_sz2blen(CART_MAX_SZ)
 
-#define CART_MAX_BANK       0x100
+#define CART_MAX_BANK       ( cart.romsize )
 
 #define CART_BANK_SZ        0x4000
 #define CART_BB_DIV         DIV_FLOOR(EBX_EXMEM_BLKSZ, CART_BANK_SZ)
@@ -33,7 +33,7 @@ static void cart_load_rombank(int bank) {
                 ctx_bidx = ebx_exmem_buf2bidx(g_ctx_base, cart.rombanks[CART_BIDX2BANK(g_rb_bidx_cur)]);
                 ebx_exmem_unmap(g_ctx, cart.rombanks[CART_BIDX2BANK(g_rb_bidx_cur)], 1);
                 for(int i = 0; i < CART_BB_DIV; i++) {
-                    ESP_LOGI(TAG, "release %zu rombank: %zu\n", ctx_bidx, CART_BIDX2BANK(g_rb_bidx_cur) + i);
+                    ESP_LOGI(TAG, "release %zu rombank: %zu", ctx_bidx, CART_BIDX2BANK(g_rb_bidx_cur) + i);
                     cart.rombanks[CART_BIDX2BANK(g_rb_bidx_cur) + i] = NULL;
                 }
                 break;
@@ -52,8 +52,8 @@ static void cart_load_rombank(int bank) {
     }
 }
 
-static inline void cart_set_rb_min(int bank) {
-    const size_t bidx = CART_BANK2BIDX(bank);
+static inline void cart_inc_rb_min(int bank) {
+    const size_t bidx = CART_BANK2BIDX(bank) + 1;
     if(bidx > g_rb_bidx_min) {
         g_rb_bidx_min = bidx;
     }
@@ -91,7 +91,7 @@ static inline void cart_load_rom_from_exmem() {
         abort();
     }
     cart_load_rombank(0);
-    cart_set_rb_min(1);
+    cart_inc_rb_min(0);
 }
 
 #define CART_LOAD_BLKSZ     0x1000
