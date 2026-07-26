@@ -476,12 +476,6 @@ int gnuboy_load_rom_file(const char *file)
 	return 0;
 }
 
-int gnuboy_load_rom_custom(void(*cb_load_rombank)(int bank)) {
-    MESSAGE_INFO("Loading file: '%s'\n", file);
-    
-}
-
-
 void gnuboy_free_rom(void)
 {
 	// If cart.romFile isn't NULL it indicates that we haven't allocated those buffers, don't free them.

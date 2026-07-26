@@ -15,7 +15,7 @@
 #define APP_NAME    gnuboy
 static const char* TAG = "ebx_app_gnuboy";
 
-#inlcude "gnuboy_cart_exmem.h"
+#include "gnuboy_cart_exmem.h"
 
 #define GB_SKIPLINE_CYCLE   (GB_HEIGHT / (GB_HEIGHT - EBX_DISP_RES_H))
 
@@ -37,7 +37,7 @@ static void app_task(void* p_param) {
         ESP_LOGE(TAG, "load bios failed");
         abort();
     }
-    cart_init();
+    //cart_init();
     if(gnuboy_load_rom_file(g_rom_path) < 0) {
         ESP_LOGE(TAG, "load rom failed");
         abort();

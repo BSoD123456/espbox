@@ -85,10 +85,10 @@ static inline void cart_deinit() {
 }
 
 static inline void cart_load_rom_from_exmem() {
-    char* buf[0x200];
+    byte buf[0x200];
     ebx_exmem_read(g_exmem, 0, 0x200, buf);
     if(gnuboy_load_rom(buf, 0x200)) {
-        ESP_LOGE(TAG, "rom setup failed: %s", fn);
+        ESP_LOGE(TAG, "rom setup failed");
         abort();
     }
     cart_load_rombank(0);
@@ -103,7 +103,7 @@ static inline void cart_load_rom_from_file(const char* fn) {
         abort();
     }
     cart_init();
-    char* buf[EBX_EXMEM_BLKSZ];
+    byte buf[EBX_EXMEM_BLKSZ];
     size_t ofs = 0;
     size_t rdlen;
     while( (rdlen = fread(buf, 1, EBX_EXMEM_BLKSZ, fp)) > 0 ) {
