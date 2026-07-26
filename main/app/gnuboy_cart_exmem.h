@@ -13,7 +13,7 @@
 #define CART_BANK2BIDX(b)   DIV_FLOOR(b, CART_BB_DIV)
 #define CART_BIDX2BANK(b)   ( (b) * CART_BB_DIV )
 #define CART_MAX_BANK_BIDX  CART_BANK2BIDX(CART_MAX_BANK)
-#define CART_MAX_LOAD_BIDX  4
+#define CART_MAX_LOAD_BIDX  6
 
 static ebx_exmem_hndl_t g_exmem = NULL;
 static ebx_exmem_ctx_t  g_ctx = NULL;
