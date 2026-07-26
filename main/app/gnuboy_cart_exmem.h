@@ -95,6 +95,7 @@ static inline void cart_load_rom_from_exmem() {
     cart_set_rb_min(1);
 }
 
+#define CART_LOAD_BLKSZ     0x1000
 static inline void cart_load_rom_from_file(const char* fn) {
     ESP_LOGI(TAG, "loading rom file: %s", fn);
     FILE* fp = fopen(fn, "rb");
@@ -103,14 +104,15 @@ static inline void cart_load_rom_from_file(const char* fn) {
         abort();
     }
     cart_init();
-    byte buf[EBX_EXMEM_BLKSZ];
+    byte buf[CART_LOAD_BLKSZ];
     size_t ofs = 0;
     size_t rdlen;
-    while( (rdlen = fread(buf, 1, EBX_EXMEM_BLKSZ, fp)) > 0 ) {
+    while( (rdlen = fread(buf, 1, CART_LOAD_BLKSZ, fp)) > 0 ) {
         ebx_exmem_write(g_exmem, ofs, rdlen, buf);
         ofs += rdlen;
     }
     fclose(fp);
+    ESP_LOGI(TAG, "write done: 0x%zx", ofs);
     cart_post_init();
     cart_load_rom_from_exmem();
 }
