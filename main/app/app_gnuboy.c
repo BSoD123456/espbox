@@ -37,11 +37,11 @@ static void app_task(void* p_param) {
         ESP_LOGE(TAG, "load bios failed");
         abort();
     }
-    //cart_init();
-    if(gnuboy_load_rom_file(g_rom_path) < 0) {
+    cart_load_rom_from_file(g_rom_path);
+    /*if(gnuboy_load_rom_file(g_rom_path) < 0) {
         ESP_LOGE(TAG, "load rom failed");
         abort();
-    }
+    }*/
     TickType_t tick = xTaskGetTickCount();
     uint32_t fps = 0;
     bool do_draw = true;

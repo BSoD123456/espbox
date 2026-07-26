@@ -46,7 +46,7 @@ static void cart_load_rombank(int bank) {
     } else {
         g_rb_cnt++;
     }
-    const void* buf = ebx_exmem_map(g_exmem, g_ctx, bidx, ctx_bidx, 1);
+    void* buf = ebx_exmem_map(g_exmem, g_ctx, bidx, ctx_bidx, 1);
     for(int i = 0; i < CART_BB_DIV; i++) {
         ESP_LOGI(TAG, "load %zu rombank: %zu\n", ctx_bidx, CART_BIDX2BANK(bidx) + i);
         cart.rombanks[CART_BIDX2BANK(bidx) + i] = buf + i * CART_BANK_SZ;
@@ -97,7 +97,7 @@ static inline void cart_load_rom_from_exmem() {
 
 static inline void cart_load_rom_from_file(const char* fn) {
     ESP_LOGI(TAG, "loading rom file: %s", fn);
-    const FILE* fp = fopen(fn, "rb");
+    FILE* fp = fopen(fn, "rb");
     if(!fp) {
         ESP_LOGE(TAG, "rom open failed: %s", fn);
         abort();
