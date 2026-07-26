@@ -66,24 +66,24 @@ static inline void cart_write(size_t ofs, void* buf, size_t size) {
     ebx_exmem_write(g_exmem, ofs, size, buf);
 }
 
-static inline void cart_init() {
+static inline void cart_init(void) {
     g_exmem = ebx_exmem_alloc(CART_MAX_BLEN);
     cart.cb_load_rombank = &cart_load_rombank;
 }
 
-static inline void cart_post_init() {
+static inline void cart_post_init(void) {
     g_ctx = ebx_exmem_alloc_ctx(g_exmem, CART_MAX_LOAD_BIDX);
     g_ctx_base = ebx_exmem_get_ctx_base(g_exmem, g_ctx);
 }
 
-static inline void cart_deinit() {
+static inline void cart_deinit(void) {
     ebx_exmem_free_ctx(g_ctx);
     g_ctx = NULL;
     ebx_exmem_free(g_exmem);
     g_exmem = NULL;
 }
 
-static inline void cart_load_rom_from_exmem() {
+static inline void cart_load_rom_from_exmem(void) {
     byte buf[0x200];
     ebx_exmem_read(g_exmem, 0, 0x200, buf);
     if(gnuboy_load_rom(buf, 0x200)) {
