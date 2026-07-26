@@ -7,14 +7,13 @@
 #define CART_MAX_BLEN       ebx_exmem_sz2blen(CART_MAX_SZ)
 
 #define CART_MAX_BANK       0x100
-#define CART_MAX_LOAD       0x20
 
 #define CART_BANK_SZ        0x4000
 #define CART_BB_DIV         DIV_FLOOR(EBX_EXMEM_BLKSZ, CART_BANK_SZ)
 #define CART_BANK2BIDX(b)   DIV_FLOOR(b, CART_BB_DIV)
 #define CART_BIDX2BANK(b)   ( (b) * CART_BB_DIV )
 #define CART_MAX_BANK_BIDX  CART_BANK2BIDX(CART_MAX_BANK)
-#define CART_MAX_LOAD_BIDX  CART_BANK2BIDX(CART_MAX_LOAD)
+#define CART_MAX_LOAD_BIDX  4
 
 static ebx_exmem_hndl_t g_exmem = NULL;
 static ebx_exmem_ctx_t  g_ctx = NULL;
@@ -48,7 +47,7 @@ static void cart_load_rombank(int bank) {
     }
     void* buf = ebx_exmem_map(g_exmem, g_ctx, bidx, ctx_bidx, 1);
     for(int i = 0; i < CART_BB_DIV; i++) {
-        ESP_LOGI(TAG, "load %zu rombank: %zu\n", ctx_bidx, CART_BIDX2BANK(bidx) + i);
+        ESP_LOGI(TAG, "load %zu rombank: %zu", ctx_bidx, CART_BIDX2BANK(bidx) + i);
         cart.rombanks[CART_BIDX2BANK(bidx) + i] = buf + i * CART_BANK_SZ;
     }
 }
