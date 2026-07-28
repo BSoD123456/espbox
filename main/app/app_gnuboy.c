@@ -15,6 +15,14 @@
 #define APP_NAME    gnuboy
 static const char* TAG = "ebx_app_gnuboy";
 
+//#define GB_DBG_LOG
+#undef GB_DBG_LOG
+#ifdef GB_DBG_LOG
+#define DBG_LOGI            ESP_LOGI
+#else
+#define DBG_LOGI(...)
+#endif
+
 #include "gnuboy_cart_exmem.h"
 
 #define GB_SKIPLINE_CYCLE   (GB_HEIGHT / (GB_HEIGHT - EBX_DISP_RES_H))
@@ -22,6 +30,8 @@ static const char* TAG = "ebx_app_gnuboy";
 #define DISP_MIN_FPS 15
 
 static char* g_rom_path = NULL;
+static char* g_sram_path = NULL;
+static char* g_stat_path = NULL;
 
 static void cb_gb_video(void* buffer) {
     void* nbuf = ebx_disp_render();
@@ -39,6 +49,11 @@ static void app_task(void* p_param) {
     }
     //cart_load_rom_from_file(g_rom_path);
     cart_load_rom_from_zip_file(g_rom_path);
+    gnuboy_reset(true);
+    if(gnuboy_load_sram(g_sram_path)) {
+        ESP_LOGW(TAG, "load sram failed: %s", g_sram_path);
+    }
+
     TickType_t tick = xTaskGetTickCount();
     uint32_t fps = 0;
     bool do_draw = true;
@@ -46,6 +61,7 @@ static void app_task(void* p_param) {
     uint32_t keys = 0;
     uint32_t last_keys = 0;
     uint32_t cnt_skip = 0;
+    bool last_sram_dirty = false;
     for(;;) {
         keys = ebx_ipt_get();
         if(keys != last_keys) {
@@ -55,9 +71,9 @@ static void app_task(void* p_param) {
             if(EBX_IPT_CHK_KEYS(keys, EBX_IPT_KEY_LEFT)) pad |= GB_PAD_LEFT;
             if(EBX_IPT_CHK_KEYS(keys, EBX_IPT_KEY_RIGHT)) pad |= GB_PAD_RIGHT;
             if(EBX_IPT_CHK_KEYS(keys, EBX_IPT_KEY_A)) pad |= GB_PAD_A;
-            if(EBX_IPT_CHK_KEYS(keys, EBX_IPT_KEY_B)) pad |= GB_PAD_START;
+            if(EBX_IPT_CHK_KEYS(keys, EBX_IPT_KEY_B)) pad |= GB_PAD_B;//START;
             gnuboy_set_pad(pad);
-            ESP_LOGI(TAG, "pad 0x%lx", keys);
+            DBG_LOGI(TAG, "pad 0x%lx", keys);
             last_keys = keys;
         }
         gnuboy_run(do_draw);
@@ -76,6 +92,14 @@ static void app_task(void* p_param) {
         if(fps > 0) {
             ESP_LOGI(TAG, "fps: %lu (%lu)", fps, cnt_draw);
             cnt_draw = 0;
+            bool sram_dirty = gnuboy_sram_dirty();
+            if(last_sram_dirty && ! sram_dirty) {
+                ESP_LOGI(TAG, "save sram to: %s", g_sram_path);
+                if(gnuboy_save_sram(g_sram_path, false)) {
+                    ESP_LOGW(TAG, "save sram failed: %s", g_sram_path);
+                }
+            }
+            last_sram_dirty = sram_dirty;
         }
         do_draw = (ebx_disp_wait_frame(&tick) >= 0);
     }
@@ -90,6 +114,8 @@ REG_APP {
     ebx_ipt_init();
 
     g_rom_path = params[0];
+    g_sram_path = params[1];
+    g_stat_path = params[2];
     TaskHandle_t hndl_disp = NULL;
     xTaskCreate(app_task, "ebx_app_gnuboy", 0x4000, NULL, 3, &hndl_disp);
 }
