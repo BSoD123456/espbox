@@ -730,7 +730,9 @@ static inline void lcd_renderline()
             uint16_t *dst = host.video.buffer16 + bufln * 160;
             uint16_t *pal = host.video.palette;
             for (int i = 0; i < 160; ++i) {
-                dst[i] = pal[BUF[i]];
+/*#define unlikely(x)     __builtin_expect(!!(x), 0)
+                if(unlikely(dst[i] != pal[BUF[i]]))*/
+                    dst[i] = pal[BUF[i]];
             }
         }
     }
