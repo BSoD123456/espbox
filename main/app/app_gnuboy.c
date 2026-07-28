@@ -19,7 +19,7 @@ static const char* TAG = "ebx_app_gnuboy";
 
 #define GB_SKIPLINE_CYCLE   (GB_HEIGHT / (GB_HEIGHT - EBX_DISP_RES_H))
 
-#define DISP_MIN_FPS 10
+#define DISP_MIN_FPS 6
 
 static char* g_rom_path = NULL;
 

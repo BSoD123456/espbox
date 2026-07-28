@@ -15,6 +15,14 @@
 #define CART_MAX_BANK_BIDX  CART_BANK2BIDX(CART_MAX_BANK)
 #define CART_MAX_LOAD_BIDX  6
 
+//#define CART_DBG_LOG
+#undef CART_DBG_LOG
+#ifdef CART_DBG_LOG
+#define DBG_LOGI            ESP_LOGI
+#else
+#define DBG_LOGI(...)
+#endif
+
 static ebx_exmem_hndl_t g_exmem = NULL;
 static ebx_exmem_ctx_t  g_ctx = NULL;
 static void*            g_ctx_base = NULL;
@@ -33,7 +41,7 @@ static void cart_load_rombank(int bank) {
                 ctx_bidx = ebx_exmem_buf2bidx(g_ctx_base, cart.rombanks[CART_BIDX2BANK(g_rb_bidx_cur)]);
                 ebx_exmem_unmap(g_ctx, cart.rombanks[CART_BIDX2BANK(g_rb_bidx_cur)], 1);
                 for(int i = 0; i < CART_BB_DIV; i++) {
-                    ESP_LOGI(TAG, "release %zu rombank: %zu", ctx_bidx, CART_BIDX2BANK(g_rb_bidx_cur) + i);
+                    DBG_LOGI(TAG, "release %zu rombank: %zu", ctx_bidx, CART_BIDX2BANK(g_rb_bidx_cur) + i);
                     cart.rombanks[CART_BIDX2BANK(g_rb_bidx_cur) + i] = NULL;
                 }
                 break;
@@ -47,7 +55,7 @@ static void cart_load_rombank(int bank) {
     }
     void* buf = ebx_exmem_map(g_exmem, g_ctx, bidx, ctx_bidx, 1);
     for(int i = 0; i < CART_BB_DIV; i++) {
-        ESP_LOGI(TAG, "load %zu rombank: %zu", ctx_bidx, CART_BIDX2BANK(bidx) + i);
+        DBG_LOGI(TAG, "load %zu rombank: %zu", ctx_bidx, CART_BIDX2BANK(bidx) + i);
         cart.rombanks[CART_BIDX2BANK(bidx) + i] = buf + i * CART_BANK_SZ;
     }
 }
