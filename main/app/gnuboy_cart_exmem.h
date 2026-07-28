@@ -116,6 +116,36 @@ static inline void cart_load_rom_from_file(const char* fn) {
     cart_load_rom_from_exmem();
 }
 
+static size_t write_zip_to_exmem(void* buf, size_t sz, void* ctx) {
+    size_t* p_ofs = ctx;
+    ebx_exmem_write(g_exmem, *p_ofs, sz, buf);
+    *p_ofs += sz;
+    return sz;
+}
+
+#define CART_LOAD_UNZIP_SZ_I    32 * 0x400
+#define CART_LOAD_UNZIP_SZ_O    32 * 0x400
+static inline void cart_load_rom_from_zip_file(const char* fn) {
+    ESP_LOGI(TAG, "loading rom zip file: %s", fn);
+    FILE* fp = fopen(fn, "rb");
+    if(!fp) {
+        ESP_LOGE(TAG, "rom open failed: %s", fn);
+        abort();
+    }
+    cart_init();
+    size_t ofs = 0;
+    if(ebx_zip_unzip_file(CART_LOAD_UNZIP_SZ_I, CART_LOAD_UNZIP_SZ_O, fp, write_zip_to_exmem, &ofs)) {
+        ESP_LOGE(TAG, "unzip failed: %s", fn);
+        abort();
+    } else {
+        ESP_LOGI(TAG, "unzip done");
+    }
+    fclose(fp);
+    ESP_LOGI(TAG, "write done: 0x%zx", ofs);
+    cart_post_init();
+    cart_load_rom_from_exmem();
+}
+
 #else
 #error duplicated include
 #endif /*__INC_GNUBOY_CART_EXMEM_H__*/

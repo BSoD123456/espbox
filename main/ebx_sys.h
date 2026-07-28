@@ -5,5 +5,6 @@
 #include "sys/ebx_fs.h"
 #include "sys/ebx_input.h"
 #include "sys/ebx_exmem.h"
+#include "sys/ebx_zip.h"
 
 #endif /*__INC_EBX_SYS_H__*/

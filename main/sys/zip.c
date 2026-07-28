@@ -77,7 +77,7 @@ static int decompress_file(size_t sz_all, size_t sz_ibuf, size_t sz_obuf, FILE* 
 
         size_t ilen = rm_ibuf;
         size_t olen = rm_obuf;
-        tdefl_status status = tinfl_decompress(&inflator, inxt, &ilen, obuf, onxt, &olen, rm_all ? TINFL_FLAG_HAS_MORE_INPUT : 0);
+        tinfl_status status = tinfl_decompress(&inflator, inxt, &ilen, obuf, onxt, &olen, rm_all ? TINFL_FLAG_HAS_MORE_INPUT : 0);
         rm_ibuf -= ilen;
         rm_obuf -= olen;
         inxt = (void*)((uint8_t*)inxt + ilen);

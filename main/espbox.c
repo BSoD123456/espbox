@@ -4,7 +4,7 @@
 
 void app_main(void) {
     SET_APP_PARAM(gnuboy) {
-        "/storage/drill.gbc",
+        "/storage/siren2.zip",
         NULL
     };
     INIT_APP(gnuboy);
