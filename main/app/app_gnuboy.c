@@ -93,11 +93,12 @@ static void app_task(void* p_param) {
             ESP_LOGI(TAG, "fps: %lu (%lu)", fps, cnt_draw);
             cnt_draw = 0;
             bool sram_dirty = gnuboy_sram_dirty();
-            if(last_sram_dirty && ! sram_dirty) {
+            if(last_sram_dirty && sram_dirty) {
                 ESP_LOGI(TAG, "save sram to: %s", g_sram_path);
                 if(gnuboy_save_sram(g_sram_path, false)) {
                     ESP_LOGW(TAG, "save sram failed: %s", g_sram_path);
                 }
+                sram_dirty = gnuboy_sram_dirty();
             }
             last_sram_dirty = sram_dirty;
         }

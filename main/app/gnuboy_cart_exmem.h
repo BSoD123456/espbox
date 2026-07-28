@@ -15,14 +15,6 @@
 #define CART_MAX_BANK_BIDX  CART_BANK2BIDX(CART_MAX_BANK)
 #define CART_MAX_LOAD_BIDX  15
 
-//#define CART_DBG_LOG
-#undef CART_DBG_LOG
-#ifdef CART_DBG_LOG
-#define DBG_LOGI            ESP_LOGI
-#else
-#define DBG_LOGI(...)
-#endif
-
 static ebx_exmem_hndl_t g_exmem = NULL;
 static ebx_exmem_ctx_t  g_ctx = NULL;
 static void*            g_ctx_base = NULL;
