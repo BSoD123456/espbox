@@ -22,5 +22,6 @@ typedef enum {
 } ebx_disp_draw_mode_t;
 
 void ebx_disp_draw_at(ebx_disp_draw_mode_t mode, void* buf, int ofs_x, int ofs_y, int width, int height, int param);
+void ebx_disp_copy_frame(void);
 
 #endif /*__INC_EBX_DISPLAY_H__*/

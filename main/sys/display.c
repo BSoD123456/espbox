@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -37,11 +38,17 @@ typedef uint16_t color_t;
 #define DISP_BITS_CMD       8
 #define DISP_BITS_PARAM     8
 
+#define LOCK_DRAW
+//#undef  LOCK_DRAW
+
 static esp_lcd_panel_handle_t g_panel_handle = NULL;
 
 static uint8_t g_disp_buffers[2][DISP_BUFF_SZ] = {};
 static void* g_draw_buffer = g_disp_buffers[0];
 static void* g_rend_buffer = g_disp_buffers[1];
+#ifdef LOCK_DRAW
+static SemaphoreHandle_t g_draw_sem = NULL;
+#endif
 static SemaphoreHandle_t g_rend_sem = NULL;
 
 static inline void flip_buffer(void) {
@@ -57,12 +64,31 @@ static bool on_flush_done(esp_lcd_panel_io_handle_t panel_io, esp_lcd_panel_io_e
 
 void* ebx_disp_render_at(int x_start, int y_start, int x_end, int y_end) {
     xSemaphoreTake(g_rend_sem, portMAX_DELAY);
+#ifdef LOCK_DRAW
+    xSemaphoreTake(g_draw_sem, portMAX_DELAY);
+#endif
     flip_buffer();
+#ifdef LOCK_DRAW
+    xSemaphoreGive(g_draw_sem);
+#endif
     ESP_ERROR_CHECK(esp_lcd_panel_draw_bitmap(g_panel_handle, x_start, y_start, x_end, y_end, g_rend_buffer));
     return g_draw_buffer;
 }
 
+void ebx_disp_copy_frame(void) {
+#ifdef LOCK_DRAW
+    xSemaphoreTake(g_draw_sem, portMAX_DELAY);
+#endif
+    memcpy(g_draw_buffer, g_rend_buffer, DISP_BUFF_SZ);
+#ifdef LOCK_DRAW
+    xSemaphoreGive(g_draw_sem);
+#endif
+}
+
 void ebx_disp_draw_at(ebx_disp_draw_mode_t mode, void* buf, int ofs_x, int ofs_y, int width, int height, int param) {
+#ifdef LOCK_DRAW
+    xSemaphoreTake(g_draw_sem, portMAX_DELAY);
+#endif
     color_t (*src_buf)[width] = buf;
     color_t (*dst_buf)[DISP_RES_LCD_W] = g_draw_buffer;
     for(int y = 0; y < height; y++) {
@@ -81,6 +107,9 @@ void ebx_disp_draw_at(ebx_disp_draw_mode_t mode, void* buf, int ofs_x, int ofs_y
             dst_buf[ofs_y + y][ofs_x + x] = c;
         }
     }
+#ifdef LOCK_DRAW
+    xSemaphoreGive(g_draw_sem);
+#endif
 }
 
 int32_t ebx_disp_wait_frame(uint32_t* p_tick) {
@@ -162,5 +191,9 @@ void ebx_disp_init(void) {
 
     g_rend_sem = xSemaphoreCreateBinary();
     xSemaphoreGive(g_rend_sem);
+#ifdef LOCK_DRAW
+    g_draw_sem = xSemaphoreCreateBinary();
+    xSemaphoreGive(g_draw_sem);
+#endif
 }
 
