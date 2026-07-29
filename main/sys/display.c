@@ -14,6 +14,7 @@
 
 #include "esp_lcd_st7735.h"
 
+#include "ebx_common.h"
 #include "ebx_display.h"
 
 static const char* TAG = "ebx_disp";
@@ -22,8 +23,6 @@ static const char* TAG = "ebx_disp";
 #define DISP_RES_LCD_H      EBX_DISP_RES_W
 #define DISP_BYTES_PIXEL    2
 #define DISP_BUFF_SZ        (DISP_RES_LCD_W * DISP_RES_LCD_H * DISP_BYTES_PIXEL)
-
-typedef uint16_t color_t;
 
 #define DISP_SPIHOST_LCD    2
 #define DISP_PCLK_LCD       (40 * 1000 * 1000)
@@ -85,24 +84,30 @@ void ebx_disp_copy_frame(void) {
 #endif
 }
 
-void ebx_disp_draw_at(ebx_disp_draw_mode_t mode, void* buf, int ofs_x, int ofs_y, int width, int height, int param) {
+#define COLOR_BLACK     EBX_DISP_COLOR(0, 0, 0)
+#define COLOR_WHITE     EBX_DISP_COLOR(255, 255, 255)
+#define COLOR_PINK      EBX_DISP_COLOR(255, 0, 255)
+
+void ebx_disp_draw_at(void* buf, int ofs_x, int ofs_y, int width, int height, uint8_t flags) {
+    ebx_disp_color_t opt_color = COLOR_BLACK;
+    if(FLAG_MATCH(flags, EBX_DISP_DRAW_FLAG_OPT_PINK)) {
+        opt_color = COLOR_PINK
+    } else if(FLAG_MATCH(flags, EBX_DISP_DRAW_FLAG_OPT_WHITE)) {
+        opt_color = COLOR_WHITE
+    }
 #ifdef LOCK_DRAW
     xSemaphoreTake(g_draw_sem, portMAX_DELAY);
 #endif
-    color_t (*src_buf)[width] = buf;
-    color_t (*dst_buf)[DISP_RES_LCD_W] = g_draw_buffer;
+    ebx_disp_color_t (*src_buf)[width] = buf;
+    ebx_disp_color_t (*dst_buf)[DISP_RES_LCD_W] = g_draw_buffer;
     for(int y = 0; y < height; y++) {
         for(int x = 0; x < width; x++) {
-            color_t c = src_buf[y][x];
-            switch(mode) {
-            case EBX_DISP_DRAW_MODE_OPTCOLOR:
-                if(c == (color_t)param) {
-                    continue
-                }
-                break;
-            case EBX_DISP_DRAW_MODE_OVERWRITE:
-            default:
-                break;
+            ebx_disp_color_t c = src_buf[y][x];
+            if( (flags & EBX_DISP_DRAW_FLAG_OPT_PINK) && c == opt_color ) {
+                continue
+            }
+            if(flags & EBX_DISP_DRAW_FLAG_SWAP) {
+                src_buf[y][x] = dst_buf[ofs_y + y][ofs_x + x];
             }
             dst_buf[ofs_y + y][ofs_x + x] = c;
         }

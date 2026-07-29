@@ -16,12 +16,19 @@ static inline void* ebx_disp_render(void) {
     return ebx_disp_render_at(0, 0, EBX_DISP_RES_W, EBX_DISP_RES_H);
 }
 
-typedef enum {
-    EBX_DISP_DRAW_MODE_OVERWRITE = 0,
-    EBX_DISP_DRAW_MODE_OPTCOLOR,
-} ebx_disp_draw_mode_t;
+typedef uint16_t ebx_disp_color_t;
 
-void ebx_disp_draw_at(ebx_disp_draw_mode_t mode, void* buf, int ofs_x, int ofs_y, int width, int height, int param);
+#define _EBX_DISP_COLOR_TERM(c, w)          ((uint_8)(c) >> (8 - (w)))
+#define _EBX_DISP_COLOR_RGB565BE(r, g, b)   ((ebx_disp_color_t)((_EBX_DISP_COLOR_TERM(r, 5)<<3) | (_EBX_DISP_COLOR_TERM(b, 5)<<8) | (_EBX_DISP_COLOR_TERM(g, 6)>>3) | (_EBX_DISP_COLOR_TERM(g, 6)<<13)))
+#define EBX_DISP_COLOR(r, g, b)             _EBX_DISP_COLOR_RGB565BE(r, g, b)
+
+#define EBX_DISP_DRAW_FLAG_DEFAULT          0x0u
+#define EBX_DISP_DRAW_FLAG_OPT_BLACK        0x1u
+#define EBX_DISP_DRAW_FLAG_OPT_WHITE        0x2u
+#define EBX_DISP_DRAW_FLAG_OPT_PINK         0x3u
+#define EBX_DISP_DRAW_FLAG_SWAP             0x4u
+
+void ebx_disp_draw_at(void* buf, int ofs_x, int ofs_y, int width, int height, uint8_t flags);
 void ebx_disp_copy_frame(void);
 
 #endif /*__INC_EBX_DISPLAY_H__*/

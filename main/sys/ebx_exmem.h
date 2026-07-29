@@ -4,14 +4,9 @@
 #include "esp32/himem.h"
 #include "esp_err.h"
 
+#include "ebx_common.h"
+
 #define EBX_EXMEM_BLKSZ     ESP_HIMEM_BLKSZ
-
-#define DIV_CEIL(v, a)      ( ((size_t)(v) + (size_t)(a) - 1) / (size_t)(a) )
-#define DIV_FLOOR(v, a)     ( (size_t)(v) / (size_t)(a) )
-
-#define ALIGN_UP(v, a)      ( DIV_CEIL(v, a) * (size_t)(a) )
-#define ALIGN_DOWN(v, a)    ( DIV_FLOOR(v, a) * (size_t)(a) )
-#define ALIGN_CHK(v, a)     ( (size_t)(v) % (size_t)(a) == 0)
 
 #define BLKSZ(sz)           ALIGN_UP(sz, EBX_EXMEM_BLKSZ)
 #define BLKOFS(ofs)         ALIGN_DOWN(ofs, EBX_EXMEM_BLKSZ)
