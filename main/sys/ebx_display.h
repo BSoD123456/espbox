@@ -16,4 +16,11 @@ static inline void* ebx_disp_render(void) {
     return ebx_disp_render_at(0, 0, EBX_DISP_RES_W, EBX_DISP_RES_H);
 }
 
+typedef enum {
+    EBX_DISP_DRAW_MODE_OVERWRITE = 0,
+    EBX_DISP_DRAW_MODE_OPTCOLOR,
+} ebx_disp_draw_mode_t;
+
+void ebx_disp_draw_at(ebx_disp_draw_mode_t mode, void* buf, int ofs_x, int ofs_y, int width, int height, int param);
+
 #endif /*__INC_EBX_DISPLAY_H__*/
