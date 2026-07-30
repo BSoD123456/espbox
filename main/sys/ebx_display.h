@@ -18,7 +18,7 @@ static inline void* ebx_disp_render(void) {
 
 typedef uint16_t ebx_disp_color_t;
 
-#define _EBX_DISP_COLOR_TERM(c, w)          ((uint_8)(c) >> (8 - (w)))
+#define _EBX_DISP_COLOR_TERM(c, w)          ((uint8_t)(c) >> (8 - (w)))
 #define _EBX_DISP_COLOR_RGB565BE(r, g, b)   ((ebx_disp_color_t)((_EBX_DISP_COLOR_TERM(r, 5)<<3) | (_EBX_DISP_COLOR_TERM(b, 5)<<8) | (_EBX_DISP_COLOR_TERM(g, 6)>>3) | (_EBX_DISP_COLOR_TERM(g, 6)<<13)))
 #define EBX_DISP_COLOR(r, g, b)             _EBX_DISP_COLOR_RGB565BE(r, g, b)
 
