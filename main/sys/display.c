@@ -43,17 +43,32 @@ static const char* TAG = "ebx_disp";
 static esp_lcd_panel_handle_t g_panel_handle = NULL;
 
 static uint8_t g_disp_buffers[2][DISP_BUFF_SZ] = {};
-static void* g_draw_buffer = g_disp_buffers[0];
-static void* g_rend_buffer = g_disp_buffers[1];
+static uint8_t g_disp_draw_bidx = 0;
 #ifdef LOCK_DRAW
 static SemaphoreHandle_t g_draw_sem = NULL;
 #endif
 static SemaphoreHandle_t g_rend_sem = NULL;
 
 static inline void flip_buffer(void) {
-    void* obuf = g_rend_buffer;
-    g_rend_buffer = g_draw_buffer;
-    g_draw_buffer = obuf;
+    g_disp_draw_bidx = !g_disp_draw_bidx;
+}
+
+void* ebx_disp_fctx_alloc(void) {
+    return calloc(2, sizeof(void*));
+}
+
+void ebx_disp_fctx_free(void* fctx) {
+    free(fctx);
+}
+
+void* ebx_disp_fctx_swap(void* fctx, void* pval) {
+    if(!fctx) {
+        ESP_LOGE(TAG, "invalid fctx");
+        abort();
+    }
+    void* r = ((void**)fctx)[g_disp_draw_bidx];
+    ((void**)fctx)[g_disp_draw_bidx] = pval;
+    return r;
 }
 
 static bool on_flush_done(esp_lcd_panel_io_handle_t panel_io, esp_lcd_panel_io_event_data_t *edata, void *user_ctx) {
@@ -70,15 +85,15 @@ void* ebx_disp_render_at(int x_start, int y_start, int x_end, int y_end) {
 #ifdef LOCK_DRAW
     xSemaphoreGive(g_draw_sem);
 #endif
-    ESP_ERROR_CHECK(esp_lcd_panel_draw_bitmap(g_panel_handle, x_start, y_start, x_end, y_end, g_rend_buffer));
-    return g_draw_buffer;
+    ESP_ERROR_CHECK(esp_lcd_panel_draw_bitmap(g_panel_handle, x_start, y_start, x_end, y_end, g_disp_buffer[!g_disp_draw_bidx]));
+    return g_disp_buffer[g_disp_draw_bidx];
 }
 
 void ebx_disp_copy_frame(void) {
 #ifdef LOCK_DRAW
     xSemaphoreTake(g_draw_sem, portMAX_DELAY);
 #endif
-    memcpy(g_draw_buffer, g_rend_buffer, DISP_BUFF_SZ);
+    memcpy(g_disp_buffer[g_disp_draw_bidx], g_disp_buffer[!g_disp_draw_bidx], DISP_BUFF_SZ);
 #ifdef LOCK_DRAW
     xSemaphoreGive(g_draw_sem);
 #endif
@@ -99,7 +114,7 @@ void ebx_disp_draw_at(void* buf, int ofs_x, int ofs_y, int width, int height, ui
     xSemaphoreTake(g_draw_sem, portMAX_DELAY);
 #endif
     ebx_disp_color_t (*src_buf)[width] = buf;
-    ebx_disp_color_t (*dst_buf)[DISP_RES_LCD_W] = g_draw_buffer;
+    ebx_disp_color_t (*dst_buf)[DISP_RES_LCD_W] = g_disp_buffer[g_disp_draw_bidx];
     for(int y = 0; y < height; y++) {
         for(int x = 0; x < width; x++) {
             ebx_disp_color_t c = src_buf[y][x];

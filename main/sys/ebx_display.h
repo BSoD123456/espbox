@@ -31,4 +31,8 @@ typedef uint16_t ebx_disp_color_t;
 void ebx_disp_draw_at(void* buf, int ofs_x, int ofs_y, int width, int height, uint8_t flags);
 void ebx_disp_copy_frame(void);
 
+void* ebx_disp_fctx_alloc(void);
+void ebx_disp_fctx_free(void* fctx);
+void* ebx_disp_fctx_swap(void* fctx, void* pval);
+
 #endif /*__INC_EBX_DISPLAY_H__*/
