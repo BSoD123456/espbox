@@ -17,6 +17,12 @@ struct ebx_ui_win_s {
 
 #define WIN_SIZE(wbp)       ( ((ebx_ui_win_t*)(wbp))->width * ((ebx_ui_win_t*)(wbp))->height )
 
+static inline void clean_wbuf(ebx_disp_color_t* wb, ebx_disp_color_t bgc) {
+    for(int i = 0; i < win_size; i++) {
+        wb[i] = bgc;
+    }
+}
+
 static void* alloc_wbuf(void* swp, void* pctx) {
     if(swp) {
         return swp;
@@ -24,9 +30,7 @@ static void* alloc_wbuf(void* swp, void* pctx) {
     int win_size = WIN_SIZE(pctx);
     ebx_disp_color_t bgc = ((ebx_ui_win_t*)pctx)->bgcolor;
     ebx_disp_color_t* wb = (ebx_disp_color_t*)malloc(win_size * sizeof(bgc));
-    for(int i = 0; i < win_size; i++) {
-        wb[i] = bgc;
-    }
+    clean_wbuf(wb, bgc);
     return (void*)wb;
 };
 
