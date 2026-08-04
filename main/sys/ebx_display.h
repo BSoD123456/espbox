@@ -34,6 +34,8 @@ void ebx_disp_copy_frame(void);
 #define EBX_DISP_FCTX_STATIC(vname)     void* vname[2] = {}
 void* ebx_disp_fctx_alloc(void);
 void ebx_disp_fctx_free(void* fctx);
+void* ebx_disp_fctx_peek(void* fctx);
 void* ebx_disp_fctx_swap(void* fctx, void* pval);
+void ebx_disp_fctx_foreach(void* fctx, void*(*cb)(void*, void*), void* pctx);
 
 #endif /*__INC_EBX_DISPLAY_H__*/

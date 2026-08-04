@@ -61,6 +61,10 @@ void ebx_disp_fctx_free(void* fctx) {
     free(fctx);
 }
 
+void* ebx_disp_fctx_peek(void* fctx) {
+    return ((void**)fctx)[g_disp_draw_bidx];
+}
+
 void* ebx_disp_fctx_swap(void* fctx, void* pval) {
     if(!fctx) {
         ESP_LOGE(TAG, "invalid fctx");
@@ -69,6 +73,11 @@ void* ebx_disp_fctx_swap(void* fctx, void* pval) {
     void* r = ((void**)fctx)[g_disp_draw_bidx];
     ((void**)fctx)[g_disp_draw_bidx] = pval;
     return r;
+}
+
+void ebx_disp_fctx_foreach(void* fctx, void*(*cb)(void*, void*), void* pctx) {
+    ((void**)fctx)[0] = cb(((void**)fctx)[0], pctx);
+    ((void**)fctx)[1] = cb(((void**)fctx)[1], pctx);
 }
 
 static bool on_flush_done(esp_lcd_panel_io_handle_t panel_io, esp_lcd_panel_io_event_data_t *edata, void *user_ctx) {
