@@ -94,15 +94,15 @@ void* ebx_disp_render_at(int x_start, int y_start, int x_end, int y_end) {
 #ifdef LOCK_DRAW
     xSemaphoreGive(g_draw_sem);
 #endif
-    ESP_ERROR_CHECK(esp_lcd_panel_draw_bitmap(g_panel_handle, x_start, y_start, x_end, y_end, g_disp_buffer[!g_disp_draw_bidx]));
-    return g_disp_buffer[g_disp_draw_bidx];
+    ESP_ERROR_CHECK(esp_lcd_panel_draw_bitmap(g_panel_handle, x_start, y_start, x_end, y_end, g_disp_buffers[!g_disp_draw_bidx]));
+    return g_disp_buffers[g_disp_draw_bidx];
 }
 
 void ebx_disp_copy_frame(void) {
 #ifdef LOCK_DRAW
     xSemaphoreTake(g_draw_sem, portMAX_DELAY);
 #endif
-    memcpy(g_disp_buffer[g_disp_draw_bidx], g_disp_buffer[!g_disp_draw_bidx], DISP_BUFF_SZ);
+    memcpy(g_disp_buffers[g_disp_draw_bidx], g_disp_buffers[!g_disp_draw_bidx], DISP_BUFF_SZ);
 #ifdef LOCK_DRAW
     xSemaphoreGive(g_draw_sem);
 #endif
@@ -114,7 +114,7 @@ void ebx_disp_draw_at(void* buf, int ofs_x, int ofs_y, int width, int height, ui
     xSemaphoreTake(g_draw_sem, portMAX_DELAY);
 #endif
     ebx_disp_color_t (*src_buf)[width] = buf;
-    ebx_disp_color_t (*dst_buf)[DISP_RES_LCD_W] = g_disp_buffer[g_disp_draw_bidx];
+    ebx_disp_color_t (*dst_buf)[DISP_RES_LCD_W] = g_disp_buffers[g_disp_draw_bidx];
     for(int y = 0; y < height; y++) {
         for(int x = 0; x < width; x++) {
             ebx_disp_color_t c = src_buf[y][x];
