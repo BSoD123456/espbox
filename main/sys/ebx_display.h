@@ -30,8 +30,8 @@ typedef uint16_t ebx_disp_color_t;
 #define EBX_DISP_COLOR_TRANSP_WHITE         0x2u
 #define EBX_DISP_COLOR_TRANSP_PINK          0x3u
 
-static inline ebx_disp_color_t ebx_disp_color_transp(uint8_t flags) {
-    switch(flags) {
+static inline ebx_disp_color_t ebx_disp_get_transp_color(uint8_t tcf) {
+    switch(tcf) {
     case EBX_DISP_COLOR_TRANSP_PINK:
         return EBX_DISP_COLOR(255, 0, 255);
     case EBX_DISP_COLOR_TRANSP_WHITE:

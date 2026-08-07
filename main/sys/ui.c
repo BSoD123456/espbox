@@ -15,34 +15,38 @@ struct ebx_ui_win_s {
     ebx_disp_color_t bgcolor;
 };
 
-#define WIN_SIZE(wbp)       ( ((ebx_ui_win_t*)(wbp))->width * ((ebx_ui_win_t*)(wbp))->height )
-
-static inline void clean_wbuf(ebx_disp_color_t* wb, ebx_disp_color_t bgc, int sz) {
+static inline void clean_dbuf(ebx_disp_color_t* wb, ebx_disp_color_t bgc, int sz) {
     for(int i = 0; i < sz; i++) {
         wb[i] = bgc;
     }
+}
+
+void* ebx_ui_dbuf_alloc(ebx_ui_win_t* wh, int width, int height) {
+    int win_size = width * height;
+    ebx_disp_color_t bgc = wh->bgcolor;
+    ebx_disp_color_t* wb = (ebx_disp_color_t*)malloc(win_size * sizeof(ebx_disp_color_t));
+    clean_dbuf(wb, bgc, win_size);
+    return (void*)wb;
 }
 
 static void* alloc_wbuf(void* swp, void* pctx) {
     if(swp) {
         return swp;
     }
-    int win_size = WIN_SIZE(pctx);
-    ebx_disp_color_t bgc = ((ebx_ui_win_t*)pctx)->bgcolor;
-    ebx_disp_color_t* wb = (ebx_disp_color_t*)malloc(win_size * sizeof(bgc));
-    clean_wbuf(wb, bgc, win_size);
-    return (void*)wb;
+    ebx_ui_win_t* wh = pctx;
+    return ebx_ui_dbuf_alloc(wh, wh->width, wh->height);
 };
 
 static void* free_wbuf(void* swp, void* pctx) {
     if(swp) {
-        free(swp);
+        ebx_ui_dbuf_free(swp);
     }
     return NULL;
 }
 
-ebx_ui_win_t* ebx_ui_win_alloc(void) {
+ebx_ui_win_t* ebx_ui_win_alloc(uint8_t tcf) {
     ebx_ui_win_t* wh = calloc(1, sizeof(ebx_ui_win_t));
+    wh->bgcolort = ebx_disp_get_transp_color(
     wh->frame_ctx = ebx_disp_fctx_alloc();
     ebx_disp_fctx_foreach(wh->frame_ctx, alloc_wbuf, wh);
 }

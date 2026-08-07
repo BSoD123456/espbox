@@ -109,7 +109,7 @@ void ebx_disp_copy_frame(void) {
 }
 
 void ebx_disp_draw_at(void* buf, int ofs_x, int ofs_y, int width, int height, uint8_t flags) {
-    ebx_disp_color_t opt_color = ebx_disp_color_transp(flags & EBX_DISP_DRAW_FLAG_TRANSP);
+    ebx_disp_color_t opt_color = ebx_disp_get_transp_color(flags & EBX_DISP_DRAW_FLAG_TRANSP);
 #ifdef LOCK_DRAW
     xSemaphoreTake(g_draw_sem, portMAX_DELAY);
 #endif
