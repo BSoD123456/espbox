@@ -13,9 +13,10 @@ struct ebx_ui_win_s {
     int width;
     int height;
     ebx_disp_color_t bgcolor;
+    int ofs_x;
+    int ofs_y;
+    uint8_t draw_flags;
 };
-
-#define WIN_SIZE(wbp)       ( ((ebx_ui_win_t*)(wbp))->width * ((ebx_ui_win_t*)(wbp))->height )
 
 static inline void clean_wbuf(ebx_disp_color_t* wb, ebx_disp_color_t bgc, int sz) {
     for(int i = 0; i < sz; i++) {
@@ -42,9 +43,11 @@ static void* free_wbuf(void* swp, void* pctx) {
     return NULL;
 }
 
-ebx_ui_win_t* ebx_ui_win_alloc(uint8_t tcf) {
+ebx_ui_win_t* ebx_ui_win_alloc(int width, int height, uint8_t tcf) {
     ebx_ui_win_t* wh = calloc(1, sizeof(ebx_ui_win_t));
-    wh->bgcolort = ebx_disp_get_transp_color(
+    wh->width = width;
+    wh->height = height;
+    wh->bgcolort = ebx_disp_get_transp_color(tcf);
     wh->frame_ctx = ebx_disp_fctx_alloc();
     ebx_disp_fctx_foreach(wh->frame_ctx, alloc_wbuf, wh);
 }
@@ -53,4 +56,9 @@ void ebx_ui_win_free(ebx_ui_win_t* wh) {
     ebx_disp_fctx_foreach(wh->frame_ctx, free_wbuf, NULL);
     ebx_disp_fctx_free(wh->frame_ctx);
     free(wh);
+}
+
+void ebx_ui_win_swap(ebx_ui_win_t* wh) {
+    void* wbuf = ebx_disp_fctx_peek(wh->frame_ctx);
+    ebx_disp_draw_at(wbuf, wh->ofs_x, wh->ofs_y, wh->width, wh->height, wh->draw_flags | EBX_DISP_DRAW_FLAG_SWAP);
 }
