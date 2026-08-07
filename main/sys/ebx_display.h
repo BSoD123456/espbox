@@ -23,10 +23,24 @@ typedef uint16_t ebx_disp_color_t;
 #define EBX_DISP_COLOR(r, g, b)             _EBX_DISP_COLOR_RGB565BE(r, g, b)
 
 #define EBX_DISP_DRAW_FLAG_DEFAULT          0x0u
-#define EBX_DISP_DRAW_FLAG_OPT_BLACK        0x1u
-#define EBX_DISP_DRAW_FLAG_OPT_WHITE        0x2u
-#define EBX_DISP_DRAW_FLAG_OPT_PINK         0x3u
-#define EBX_DISP_DRAW_FLAG_SWAP             0x4u
+#define EBX_DISP_DRAW_FLAG_TRANSP           0x3u
+#define EBX_DISP_DRAW_FLAG_SWAP             0x10u
+
+#define EBX_DISP_COLOR_TRANSP_BLACK         0x1u
+#define EBX_DISP_COLOR_TRANSP_WHITE         0x2u
+#define EBX_DISP_COLOR_TRANSP_PINK          0x3u
+
+static inline ebx_disp_color_t ebx_disp_color_transp(uint8_t flags) {
+    switch(flags) {
+    case EBX_DISP_COLOR_TRANSP_PINK:
+        return EBX_DISP_COLOR(255, 0, 255);
+    case EBX_DISP_COLOR_TRANSP_WHITE:
+        return EBX_DISP_COLOR(255, 255, 255);
+    case EBX_DISP_COLOR_TRANSP_BLACK:
+    default:
+        return EBX_DISP_COLOR(0, 0, 0);
+    }
+}
 
 void ebx_disp_draw_at(void* buf, int ofs_x, int ofs_y, int width, int height, uint8_t flags);
 void ebx_disp_copy_frame(void);

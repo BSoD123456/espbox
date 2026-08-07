@@ -108,17 +108,8 @@ void ebx_disp_copy_frame(void) {
 #endif
 }
 
-#define COLOR_BLACK     EBX_DISP_COLOR(0, 0, 0)
-#define COLOR_WHITE     EBX_DISP_COLOR(255, 255, 255)
-#define COLOR_PINK      EBX_DISP_COLOR(255, 0, 255)
-
 void ebx_disp_draw_at(void* buf, int ofs_x, int ofs_y, int width, int height, uint8_t flags) {
-    ebx_disp_color_t opt_color = COLOR_BLACK;
-    if(FLAG_MATCH(flags, EBX_DISP_DRAW_FLAG_OPT_PINK)) {
-        opt_color = COLOR_PINK;
-    } else if(FLAG_MATCH(flags, EBX_DISP_DRAW_FLAG_OPT_WHITE)) {
-        opt_color = COLOR_WHITE;
-    }
+    ebx_disp_color_t opt_color = ebx_disp_color_transp(flags & EBX_DISP_DRAW_FLAG_TRANSP);
 #ifdef LOCK_DRAW
     xSemaphoreTake(g_draw_sem, portMAX_DELAY);
 #endif
@@ -127,7 +118,7 @@ void ebx_disp_draw_at(void* buf, int ofs_x, int ofs_y, int width, int height, ui
     for(int y = 0; y < height; y++) {
         for(int x = 0; x < width; x++) {
             ebx_disp_color_t c = src_buf[y][x];
-            if( (flags & EBX_DISP_DRAW_FLAG_OPT_PINK) && c == opt_color ) {
+            if( (flags & EBX_DISP_DRAW_FLAG_TRANSP) && c == opt_color ) {
                 continue;
             }
             if(flags & EBX_DISP_DRAW_FLAG_SWAP) {
