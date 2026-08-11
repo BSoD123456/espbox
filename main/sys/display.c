@@ -108,13 +108,10 @@ void ebx_disp_copy_frame(void) {
 #endif
 }
 
-void ebx_disp_draw_at(void* buf, int ofs_x, int ofs_y, int width, int height, uint8_t flags) {
-    ebx_disp_color_t opt_color = ebx_disp_get_transp_color(flags & EBX_DISP_DRAW_FLAG_TRANSP);
-#ifdef LOCK_DRAW
-    xSemaphoreTake(g_draw_sem, portMAX_DELAY);
-#endif
+void ebx_disp_blit_at(void*dbuf, int dwidth, void* buf, int ofs_x, int ofs_y, int width, int height, uint32_t flags) {
+    ebx_disp_color_t opt_color = (flags & EBX_DISP_DRAW_FLAG_COLOR_MASK);
     ebx_disp_color_t (*src_buf)[width] = buf;
-    ebx_disp_color_t (*dst_buf)[DISP_RES_LCD_W] = g_disp_buffers[g_disp_draw_bidx];
+    ebx_disp_color_t (*dst_buf)[dwidth] = dbuf;
     for(int y = 0; y < height; y++) {
         for(int x = 0; x < width; x++) {
             ebx_disp_color_t c = src_buf[y][x];
@@ -127,6 +124,13 @@ void ebx_disp_draw_at(void* buf, int ofs_x, int ofs_y, int width, int height, ui
             dst_buf[ofs_y + y][ofs_x + x] = c;
         }
     }
+}
+
+void ebx_disp_draw_at(void* buf, int ofs_x, int ofs_y, int width, int height, uint32_t flags) {
+#ifdef LOCK_DRAW
+    xSemaphoreTake(g_draw_sem, portMAX_DELAY);
+#endif
+    ebx_disp_blit_at(g_disp_buffers[g_disp_draw_bidx], DISP_RES_LCD_W, buf, ofs_x, ofs_y, width, height, flags);
 #ifdef LOCK_DRAW
     xSemaphoreGive(g_draw_sem);
 #endif
