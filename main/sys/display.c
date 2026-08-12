@@ -108,7 +108,7 @@ void ebx_disp_copy_frame(void) {
 #endif
 }
 
-void ebx_disp_blit_at(void*dbuf, int dwidth, void* buf, int ofs_x, int ofs_y, int width, int height, uint32_t flags) {
+void ebx_disp_blit_at(void* dbuf, int dwidth, void* buf, int ofs_x, int ofs_y, int width, int height, uint32_t flags) {
     ebx_disp_color_t opt_color = (flags & EBX_DISP_DRAW_FLAG_COLOR_MASK);
     ebx_disp_color_t (*src_buf)[width] = buf;
     ebx_disp_color_t (*dst_buf)[dwidth] = dbuf;
