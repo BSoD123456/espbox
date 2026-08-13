@@ -24,10 +24,8 @@ static const char* TAG = "ebx_zip";
 
 #include "miniz.h"
 
+#include "ebx_common.h"
 #include "ebx_zip.h"
-
-#define MAX(a, b) (((a) > (b)) ? (a) : (b))
-#define MIN(a, b) (((a) < (b)) ? (a) : (b))
 
 #define OK      0
 #define ERR     1
