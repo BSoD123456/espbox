@@ -123,7 +123,12 @@ void ebx_disp_blit_at(void* dbuf, int dwidth, int dheight, void* buf, int ofs_x,
     ebx_disp_color_t (*dst_buf)[dwidth] = dbuf;
     for(int y = 0; y < height; y++) {
         for(int x = 0; x < width; x++) {
-            ebx_disp_color_t c = src_buf[y][x];
+            ebx_disp_color_t c;
+            if(flags & EBX_DISP_DRAW_FLAG_FILL) {
+                c = opt_color;
+            } else {
+                c = src_buf[y][x];
+            }
             if( (flags & EBX_DISP_DRAW_FLAG_TRANSP) && c == opt_color ) {
                 continue;
             }

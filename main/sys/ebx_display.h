@@ -25,6 +25,7 @@ typedef uint16_t ebx_disp_color_t;
 #define EBX_DISP_DRAW_FLAG_DEFAULT          0x0u
 #define EBX_DISP_DRAW_FLAG_TRANSP           (0x1u << 16)
 #define EBX_DISP_DRAW_FLAG_SWAP             (0x2u << 16)
+#define EBX_DISP_DRAW_FLAG_FILL             (0x4u << 16)
 #define EBX_DISP_DRAW_FLAG_COLOR_MASK       0xffffu
 
 #define EBX_DISP_DRAW_FLAGS(flags, ...)     ((uint32_t)( (flags) __VA_OPT__(| (EBX_DISP_DRAW_FLAG_COLOR_MASK & (ebx_disp_color_t)(__VA_ARGS__)) ) ))

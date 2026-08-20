@@ -69,6 +69,11 @@ void ebx_ui_win_draw(ebx_ui_win_t* wh, void* buf, int ofs_x, int ofs_y, int widt
     ebx_disp_blit_at(wbuf, wh->width, wh->height, buf, ofs_x, ofs_y, width, height, wh->draw_flags);
 }
 
+void ebx_ui_win_erase(ebx_ui_win_t* wh, int ofs_x, int ofs_y, int width, int height) {
+    void* wbuf = ebx_disp_fctx_peek(wh->frame_ctx);
+    ebx_disp_blit_at(NULL, wh->width, wh->height, buf, ofs_x, ofs_y, width, height, wh->draw_flags & ~EBX_DISP_DRAW_FLAG_TRANSP | EBX_DISP_DRAW_FLAG_FILL);
+}
+
 void ebx_ui_win_clean(ebx_ui_win_t* wh) {
     void* wbuf = ebx_disp_fctx_peek(wh->frame_ctx);
     clean_wbuf((ebx_disp_color_t*)wbuf, wh->bgcolort, wh->width * wh->height);

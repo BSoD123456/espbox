@@ -78,19 +78,40 @@ static const void* menu_icons[MENU_ICON_NUM_H][MENU_ICON_NUM_W] = {
 static ebx_ui_win_t* g_menu_win = NULL;
 static int g_menu_sidx = 0;
 
-static void menu_draw(void) {
-    int sel_row = g_menu_sidx / MENU_ICON_NUM_W;
-    int sel_col = g_menu_sidx % MENU_ICON_NUM_W;
+static void _draw_icons(void) {
     for(int row = 0; row < MENU_ICON_NUM_H; row++) {
         int y = MENU_UNIT_SIZE_H * row;
         for(int col = 0; col < MENU_ICON_NUM_W; col++) {
             int x = MENU_UNIT_SIZE_W * col;
             ebx_ui_win_draw(g_menu_win, menu_icons[row][col], x + MENU_ICON_ARROW_SIZE_W, y, MENU_ICON_SIZE_W, MENU_ICON_SIZE_H);
-            if(sel_row == row && sel_col == col) {
-                ebx_ui_win_draw(g_menu_win, menu_icon_arrow, x, y, MENU_ICON_ARROW_SIZE_W, MENU_ICON_ARROW_SIZE_H);
-            }
         }
     }
+}
+
+static void _draw_arrow(void) {
+    int sel_row = g_menu_sidx / MENU_ICON_NUM_W;
+    int sel_col = g_menu_sidx % MENU_ICON_NUM_W;
+    ebx_ui_win_draw(g_menu_win, menu_icon_arrow, MENU_UNIT_SIZE_W * sel_col, MENU_UNIT_SIZE_H * sel_col, MENU_ICON_ARROW_SIZE_W, MENU_ICON_ARROW_SIZE_H);
+}
+
+static void _erase_arrow(void) {
+    int sel_row = g_menu_sidx / MENU_ICON_NUM_W;
+    int sel_col = g_menu_sidx % MENU_ICON_NUM_W;
+    ebx_ui_win_erase(g_menu_win, MENU_UNIT_SIZE_W * sel_col, MENU_UNIT_SIZE_H * sel_col, MENU_ICON_ARROW_SIZE_W, MENU_ICON_ARROW_SIZE_H);
+}
+
+static void menu_sel_to(int sidx) {
+    sidx %= MENU_ICON_NUM;
+    if(sidx == g_menu_sidx) {
+        return;
+    }
+    _erase_arrow();
+    g_menu_sidx = sidx;
+    _draw_arrow();
+}
+
+static inline void menu_sel_by(int dcol, int drow) {
+    menu_sel_to(drow * MENU_ICON_NUM_W + dcol);
 }
 
 static void menu_init(void) {
@@ -100,6 +121,7 @@ static void menu_init(void) {
     }
     g_menu_win = ebx_ui_win_create(MENU_SIZE_W, MENU_SIZE_H, MENU_COLOR_MAGICPINK, EBX_DISP_DRAW_FLAG_TRANSP);
     g_menu_sidx = 0;
+    _draw_icons();
 }
 
 static void menu_deinit(void) {
