@@ -24,6 +24,7 @@ static const char* TAG = "ebx_app_gnuboy";
 #endif
 
 #include "gnuboy_cart_exmem.h"
+#include "gnuboy_menu.h"
 
 #define GB_SKIPLINE_CYCLE   (GB_HEIGHT / (GB_HEIGHT - EBX_DISP_RES_H))
 
