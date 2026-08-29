@@ -68,7 +68,7 @@ static void app_task(void* p_param) {
     uint32_t cnt_skip = 0;
     bool last_sram_dirty = false;
     bool menu_disp = false;
-    int menu_padpress_cnt = 0;
+    int menu_padpress_cnt = -1;
     menu_init();
     for(;;) {
         keys = ebx_ipt_get();
@@ -82,6 +82,8 @@ static void app_task(void* p_param) {
             if(EBX_IPT_CHK_KEYS(keys, EBX_IPT_KEY_B)) pad |= GB_PAD_B;
             if(menu_disp) {
                 if(pad & GB_PAD_B) {
+                    menu_disp = false;
+                    // TODO: menu clean
                 } else if(pad & GB_PAD_A) {
                 } else if(pad & GB_PAD_UP) {
                     menu_sel_by(0, -1);
@@ -97,20 +99,26 @@ static void app_task(void* p_param) {
                     if(g_menuconf_hook) {
                         pad &= ~g_menuconf_pad;
                     }
-                    if(menu_padpress_cnt >= g_menuconf_padpress) {
-                        menu_disp = true;
-                        ebx_disp_copy_frame();
-                        DBG_LOGI(TAG, "menu open");
-                    } else {
-                        // TODO: and should be out of if(keys != last_keys)
+                    if(menu_padpress_cnt < 0) {
+                        menu_padpress_cnt = 0;
                     }
                 }
-                if(!menu_disp) {
-                    gnuboy_set_pad(pad);
-                    DBG_LOGI(TAG, "pad 0x%lx", keys);
-                }
+                gnuboy_set_pad(pad);
+                DBG_LOGI(TAG, "pad 0x%lx", keys);
             }
             last_keys = keys;
+        }
+        if(menu_padpress_cnt >= 0) {
+            if(FLAG_MATCH(pad, g_menuconf_pad)) {
+                if(menu_padpress_cnt++ >= g_menuconf_padpress) {
+                    menu_disp = true;
+                    ebx_disp_copy_frame();
+                    DBG_LOGI(TAG, "menu open");
+                    menu_padpress_cnt = -1;
+                }
+            } else {
+                menu_padpress_cnt = -1;
+            }
         }
         if(menu_disp) {
             if(do_draw) {
