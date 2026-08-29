@@ -34,6 +34,10 @@ static char* g_rom_path = NULL;
 static char* g_sram_path = NULL;
 static char* g_stat_path = NULL;
 
+static int  g_menuconf_pad = NULL;
+static int  g_menuconf_padpress = 0;
+static bool g_menuconf_hook = false;
+
 static void cb_gb_video(void* buffer) {
     void* nbuf = ebx_disp_render();
     gnuboy_set_framebuffer(nbuf);
@@ -63,6 +67,9 @@ static void app_task(void* p_param) {
     uint32_t last_keys = 0;
     uint32_t cnt_skip = 0;
     bool last_sram_dirty = false;
+    bool menu_disp = false;
+    int menu_padpress_cnt = 0;
+    menu_init();
     for(;;) {
         keys = ebx_ipt_get();
         if(keys != last_keys) {
@@ -72,12 +79,46 @@ static void app_task(void* p_param) {
             if(EBX_IPT_CHK_KEYS(keys, EBX_IPT_KEY_LEFT)) pad |= GB_PAD_LEFT;
             if(EBX_IPT_CHK_KEYS(keys, EBX_IPT_KEY_RIGHT)) pad |= GB_PAD_RIGHT;
             if(EBX_IPT_CHK_KEYS(keys, EBX_IPT_KEY_A)) pad |= GB_PAD_A;
-            if(EBX_IPT_CHK_KEYS(keys, EBX_IPT_KEY_B)) pad |= GB_PAD_B;//START;
-            gnuboy_set_pad(pad);
-            DBG_LOGI(TAG, "pad 0x%lx", keys);
+            if(EBX_IPT_CHK_KEYS(keys, EBX_IPT_KEY_B)) pad |= GB_PAD_B;
+            if(menu_disp) {
+                if(pad & GB_PAD_B) {
+                } else if(pad & GB_PAD_A) {
+                } else if(pad & GB_PAD_UP) {
+                    menu_sel_by(0, -1);
+                } else if(pad & GB_PAD_DOWN) {
+                    menu_sel_by(0, 1);
+                } else if(pad & GB_PAD_LEFT) {
+                    menu_sel_by(-1, 0);
+                } else if(pad & GB_PAD_RIGHT) {
+                    menu_sel_by(1, 0);
+                }
+            } else {
+                if(FLAG_MATCH(pad, g_menuconf_pad)) {
+                    if(g_menuconf_hook) {
+                        pad &= ~g_menuconf_pad;
+                    }
+                    if(menu_padpress_cnt >= g_menuconf_padpress) {
+                        menu_disp = true;
+                        ebx_disp_copy_frame();
+                        DBG_LOGI(TAG, "menu open");
+                    } else {
+                        // TODO: and should be out of if(keys != last_keys)
+                    }
+                }
+                if(!menu_disp) {
+                    gnuboy_set_pad(pad);
+                    DBG_LOGI(TAG, "pad 0x%lx", keys);
+                }
+            }
             last_keys = keys;
         }
-        gnuboy_run(do_draw);
+        if(menu_disp) {
+            if(do_draw) {
+                menu_update();
+            }
+        } else {
+            gnuboy_run(do_draw);
+        }
         if(do_draw) {
             cnt_draw++;
             cnt_skip = 0;
@@ -118,6 +159,9 @@ REG_APP {
     g_rom_path = params[0];
     g_sram_path = params[1];
     g_stat_path = params[2];
+    g_menuconf_pad = GB_PAD_B;
+    g_menuconf_padpress = 120;
+    g_menuconf_hook = true;
     TaskHandle_t hndl_disp = NULL;
     xTaskCreate(app_task, "ebx_app_gnuboy", 0x4000, NULL, 3, &hndl_disp);
 }
