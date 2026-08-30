@@ -34,17 +34,6 @@ static const ebx_disp_color_t menu_icon_empty[MENU_ICON_SIZE_H][MENU_ICON_SIZE_W
     {   C0, C0, C0, C0, C0, C0, C0, C0  },
 };
 
-static const ebx_disp_color_t menu_icon_white[MENU_ICON_SIZE_H][MENU_ICON_SIZE_W] = {
-    {   CW, CW, CW, CW, CW, CW, CW, CW  },
-    {   CW, CW, CW, CW, CW, CW, CW, CW  },
-    {   CW, CW, CW, CW, CW, CW, CW, CW  },
-    {   CW, CW, CW, CW, CW, CW, CW, CW  },
-    {   CW, CW, CW, CW, CW, CW, CW, CW  },
-    {   CW, CW, CW, CW, CW, CW, CW, CW  },
-    {   CW, CW, CW, CW, CW, CW, CW, CW  },
-    {   CW, CW, CW, CW, CW, CW, CW, CW  },
-};
-
 static const ebx_disp_color_t menu_icon_key_sel[MENU_ICON_SIZE_H][MENU_ICON_SIZE_W] = {
     {   C0, C0, C0, C0, C0, C0, C0, C0  },
     {   C0, C0, C0, C0, C0, C0, C0, C0  },
@@ -67,6 +56,49 @@ static const ebx_disp_color_t menu_icon_key_start[MENU_ICON_SIZE_H][MENU_ICON_SI
     {   C0, CW, CW, C0, C0, C0, C0, C0  },
 };
 
+static const ebx_disp_color_t menu_icon_key_target[MENU_ICON_SIZE_H][MENU_ICON_SIZE_W] = {
+    {   C0, C0, CW, CW, CW, CW, C0, C0  },
+    {   C0, CW, CB, CB, CB, CB, CW, C0  },
+    {   CW, CB, CB, CB, CB, CB, CB, CW  },
+    {   CW, CB, CB, CW, CW, CB, CB, CW  },
+    {   CW, CB, CB, CW, CW, CB, CB, CW  },
+    {   CW, CB, CB, CB, CB, CB, CB, CW  },
+    {   C0, CW, CB, CB, CB, CB, CW, C0  },
+    {   C0, C0, CW, CW, CW, CW, C0, C0  },
+};
+
+static const ebx_disp_color_t menu_icon_reset[MENU_ICON_SIZE_H][MENU_ICON_SIZE_W] = {
+    {   C0, C0, CW, CB, CW, CW, C0, C0  },
+    {   C0, CW, CB, CB, CB, CB, CW, C0  },
+    {   CW, CW, CW, CB, CW, CB, CB, CW  },
+    {   CW, CW, CW, CW, C0, CW, CB, CW  },
+    {   CW, CB, CW, C0, C0, CW, CB, CW  },
+    {   CW, CB, CB, CW, CW, CB, CB, CW  },
+    {   C0, CW, CB, CB, CB, CB, CW, C0  },
+    {   C0, C0, CW, CW, CW, CW, C0, C0  },
+};
+
+static const ebx_disp_color_t menu_icon_save[MENU_ICON_SIZE_H][MENU_ICON_SIZE_W] = {
+    {   C0, C0, CW, CB, CW, C0, C0, C0  },
+    {   C0, C0, CW, CB, CW, C0, C0, C0  },
+    {   C0, C0, CW, CB, CW, C0, C0, C0  },
+    {   C0, CW, CB, CB, CB, CW, CW, C0  },
+    {   CW, CB, CW, CB, CW, CW, CB, CW  },
+    {   CW, CB, CW, CW, CW, CW, CB, CW  },
+    {   CW, CB, CB, CB, CB, CB, CB, CW  },
+    {   CW, CW, CW, CW, CW, CW, CW, CW  },
+};
+
+static const ebx_disp_color_t menu_icon_load[MENU_ICON_SIZE_H][MENU_ICON_SIZE_W] = {
+    {   C0, C0, C0, CW, CB, CW, C0, C0  },
+    {   C0, C0, CW, CB, CB, CB, CW, C0  },
+    {   C0, C0, C0, CW, CB, CW, C0, C0  },
+    {   C0, CW, C0, CW, CB, CW, CW, C0  },
+    {   CW, CB, CW, CW, CB, CW, CB, CW  },
+    {   CW, CB, CW, CW, CW, CW, CB, CW  },
+    {   CW, CB, CB, CB, CB, CB, CB, CW  },
+    {   CW, CW, CW, CW, CW, CW, CW, CW  },
+};
 static const ebx_disp_color_t menu_icon_arrow[MENU_ICON_ARROW_SIZE_H][MENU_ICON_ARROW_SIZE_W] = {
     {   C0, CW, C0, C0  },
     {   CW, CB, CW, C0  },
@@ -82,8 +114,8 @@ static const ebx_disp_color_t menu_icon_arrow[MENU_ICON_ARROW_SIZE_H][MENU_ICON_
 #undef CB
 
 static const void* menu_icons[MENU_ICON_NUM_H][MENU_ICON_NUM_W] = {
-    {   menu_icon_key_sel,      menu_icon_key_start,    menu_icon_white,        },
-    {   menu_icon_white,        menu_icon_white,        menu_icon_white,        },
+    {   menu_icon_key_sel,      menu_icon_key_start,    menu_icon_key_target,   },
+    {   menu_icon_reset,        menu_icon_load,         menu_icon_save,        },
 };
 
 static ebx_ui_win_t* g_menu_win = NULL;
