@@ -83,8 +83,11 @@ static void app_task(void* p_param) {
             if(menu_disp) {
                 if(pad & GB_PAD_B) {
                     menu_disp = false;
-                    // TODO: menu clean
+                    menu_clean();
+                    DBG_LOGI(TAG, "menu close");
                 } else if(pad & GB_PAD_A) {
+                    int sidx = menu_get_sel();
+                    DBG_LOGI(TAG, "menu sel %ld", sidx);
                 } else if(pad & GB_PAD_UP) {
                     menu_sel_by(0, -1);
                 } else if(pad & GB_PAD_DOWN) {
