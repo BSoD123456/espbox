@@ -147,15 +147,14 @@ static void menu_move_to(int x, int y) {
 
 static void menu_update(void) {
     ebx_disp_render();
-    /*if(g_menu_icons_drawn) {
+    if(g_menu_icons_drawn) {
         ebx_ui_win_swap(g_menu_win);
     } else {
         _draw_icons();
         g_menu_icons_drawn = true;
     }
     _update_arrow();
-    ebx_ui_win_swap(g_menu_win);*/
-    ebx_disp_draw_at((void*)menu_icon_white, 50, 30, MENU_ICON_SIZE_W, MENU_ICON_SIZE_H, EBX_DISP_DRAW_FLAGS(EBX_DISP_DRAW_FLAG_TRANSP, MENU_COLOR_MAGICPINK));
+    ebx_ui_win_swap(g_menu_win);
 }
 
 static void menu_init(void) {
