@@ -187,6 +187,72 @@ static void app_task(void* p_param) {
     }
 }
 
+static void parse_menuconf(void) {
+    g_menuconf_key = EBX_IPT_KEY_B;
+    g_menuconf_keypress = 60;
+    g_menuconf_pad_kpdef = 0;
+    size_t slen = strlen(g_rom_path);
+    if(slen > 0x400) {
+        goto done;
+    }
+    int cidx = (int)slen - 1;
+    int ced = -1;
+    int hit_cnt = 0;
+    for(; cidx >= 0; cidx--) {
+        char c = g_rom_path[cidx];
+        if(c == '.') {
+            if(++hit_cnt == 1) {
+                ced = cidx;
+            } else if(hit_cnt == 2) {
+                cidx++;
+                break;
+            }
+        } else if(c == '/') {
+            cidx = -1;
+            break;
+        }
+    }
+    if(cidx < 0 || cidx >= ced) {
+        goto done;
+    }
+    switch(g_rom_path[cidx]) {
+    case 'a':
+        g_menuconf_key = EBX_IPT_KEY_A;
+        cidx++;
+        break;
+    case 'b':
+        cidx++;
+        break;
+    }
+    if(cidx >= ced) {
+        goto done;
+    }
+    int cv = g_rom_path[cidx] - '0';
+    if(cv >= 0 && cv <= 9) {
+        g_menuconf_keypress = cv * 30;
+        cidx++;
+    }
+    if(cidx >= ced) {
+        goto done;
+    }
+    if(g_rom_path[cidx] == 'e') {
+        g_menuconf_pad_kpdef = 1;
+    }
+done:
+    if(g_menuconf_key == EBX_IPT_KEY_A) {
+        g_menuconf_pad = GB_PAD_A;
+        ESP_LOGI(TAG, "menu conf / trigger key: A");
+    } else {
+        g_menuconf_pad = GB_PAD_B;
+        ESP_LOGI(TAG, "menu conf / trigger key: B");
+    }
+    ESP_LOGI(TAG, "menu conf / trigger time: %d.%ds", g_menuconf_keypress / 60, g_menuconf_keypress % 60 / 6);
+    if(g_menuconf_pad_kpdef) {
+        g_menuconf_pad_kpdef = g_menuconf_pad;
+        ESP_LOGI(TAG, "menu conf / emit key");
+    }
+}
+
 REG_APP {
     size_t free_heap = heap_caps_get_free_size(MALLOC_CAP_DEFAULT);
     ESP_LOGI(TAG, "free: %zu (%zu KB)", free_heap, free_heap / 1024);
@@ -198,14 +264,7 @@ REG_APP {
     g_rom_path = params[0];
     g_sram_path = params[1];
     g_stat_path = params[2];
-    g_menuconf_key = EBX_IPT_KEY_A;
-    g_menuconf_keypress = 60;
-    if(g_menuconf_key == EBX_IPT_KEY_A) {
-        g_menuconf_pad = GB_PAD_A;
-    } else {
-        g_menuconf_pad = GB_PAD_B;
-    }
-    g_menuconf_pad_kpdef = 0; //g_menuconf_pad;
+    parse_menuconf();
     TaskHandle_t hndl_disp = NULL;
     xTaskCreate(app_task, "ebx_app_gnuboy", 0x4000, NULL, 3, &hndl_disp);
 }
