@@ -152,6 +152,7 @@ static void menu_update(void) {
     } else {
         _draw_icons();
         g_menu_icons_drawn = true;
+        ebx_ui_win_swap(g_menu_win);
     }
     _update_arrow();
     ebx_ui_win_swap(g_menu_win);
