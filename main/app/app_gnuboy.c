@@ -145,6 +145,7 @@ static void app_task(void* p_param) {
                 if(menu_keypress_cnt++ >= g_menuconf_keypress) {
                     menu_disp = true;
                     ebx_disp_copy_frame();
+                    menu_sel_to(1, 0);
                     DBG_LOGI(TAG, "menu open");
                     menu_keypress_cnt = -1;
                     menu_key_stat = MENU_KEY_STAT_MENU;
