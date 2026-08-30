@@ -247,10 +247,26 @@ static void parse_menuconf(void) {
     if(cidx >= ced) {
         goto done;
     }
-    int cv = g_rom_path[cidx] - '0';
-    if(cv >= 0 && cv <= 9) {
-        g_menuconf_keypress = cv * 30;
-        cidx++;
+    int cva = -1;
+    for(;;) {
+        int cv = g_rom_path[cidx] - '0';
+        if(cv >= 0 && cv <= 9) {
+            if(cva < 0) cva = 0;
+            cva = cva * 10 + cv;
+            cidx++;
+        } else {
+            break;
+        }
+        if(cidx >= ced) {
+            if(cva < 0) {
+                goto done;
+            } else {
+                break;
+            }
+        }
+    }
+    if(cva >= 0) {
+        g_menuconf_keypress = cva * 30;
     }
     if(cidx >= ced) {
         goto done;
