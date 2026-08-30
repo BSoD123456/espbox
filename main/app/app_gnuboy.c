@@ -36,8 +36,8 @@ static char* g_stat_path = NULL;
 
 static int  g_menuconf_key = 0;
 static int  g_menuconf_pad = 0;
+static int  g_menuconf_pad_kpdef = 0;
 static int  g_menuconf_keypress = 0;
-static bool g_menuconf_hook = false;
 
 typedef enum {
     MENU_KEY_STAT_IDLE = 0,
@@ -76,7 +76,7 @@ static void app_task(void* p_param) {
     bool menu_disp = false;
     int menu_keypress_cnt = -1;
     menu_key_stat_t menu_key_stat = MENU_KEY_STAT_IDLE;
-    int menu_keypress_pad = 0;
+    int menu_keypress_pad = g_menuconf_pad_kpdef;
     menu_init();
     for(;;) {
         uint32_t keys = ebx_ipt_get();
@@ -127,7 +127,7 @@ static void app_task(void* p_param) {
                         EBX_IPT_SET_KEYS(last_keys, g_menuconf_key);
                     }
                     menu_keypress_cnt = -1;
-                    menu_keypress_pad = 0;
+                    menu_keypress_pad = g_menuconf_pad_kpdef;
                     menu_key_stat = MENU_KEY_STAT_IDLE;
                 }
                 if(EBX_IPT_CHK_KEYS(keys, EBX_IPT_KEY_UP)) pad |= GB_PAD_UP;
@@ -138,7 +138,6 @@ static void app_task(void* p_param) {
                 if(EBX_IPT_CHK_KEYS(keys, EBX_IPT_KEY_B) && g_menuconf_key != EBX_IPT_KEY_B) pad |= GB_PAD_B;
                 gnuboy_set_pad(pad);
                 DBG_LOGI(TAG, "pad 0x%x", pad);
-                printf("pad 0x%x\n", pad);
             }
         }
         if(menu_keypress_cnt >= 0) {
@@ -199,14 +198,14 @@ REG_APP {
     g_rom_path = params[0];
     g_sram_path = params[1];
     g_stat_path = params[2];
-    g_menuconf_key = EBX_IPT_KEY_B;
-    g_menuconf_keypress = 120;
-    g_menuconf_hook = true;
+    g_menuconf_key = EBX_IPT_KEY_A;
+    g_menuconf_keypress = 60;
     if(g_menuconf_key == EBX_IPT_KEY_A) {
         g_menuconf_pad = GB_PAD_A;
     } else {
         g_menuconf_pad = GB_PAD_B;
     }
+    g_menuconf_pad_kpdef = 0; //g_menuconf_pad;
     TaskHandle_t hndl_disp = NULL;
     xTaskCreate(app_task, "ebx_app_gnuboy", 0x4000, NULL, 3, &hndl_disp);
 }
