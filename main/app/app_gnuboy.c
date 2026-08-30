@@ -78,6 +78,7 @@ static void app_task(void* p_param) {
     menu_key_stat_t menu_key_stat = MENU_KEY_STAT_IDLE;
     int menu_keypress_pad = g_menuconf_pad_kpdef;
     menu_init();
+    menu_move_to(120, 5);
     for(;;) {
         uint32_t keys = ebx_ipt_get();
         if(keys != last_keys) {
@@ -112,6 +113,7 @@ static void app_task(void* p_param) {
                             gnuboy_save_state(g_stat_path);
                             break;
                         }
+                        menu_key_stat = MENU_KEY_STAT_IDLE;
                     }
                     menu_disp = false;
                     menu_clean();
@@ -124,6 +126,11 @@ static void app_task(void* p_param) {
                     menu_sel_by(-1, 0);
                 } else if(EBX_IPT_CHK_KEYS(keys, EBX_IPT_KEY_RIGHT)) {
                     menu_sel_by(1, 0);
+                } else if(keys) {
+                    menu_disp = false;
+                    menu_clean();
+                    DBG_LOGI(TAG, "menu close");
+                    menu_key_stat = MENU_KEY_STAT_IDLE;
                 }
             }
             if(!menu_disp) {

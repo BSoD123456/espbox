@@ -160,7 +160,6 @@ static inline void menu_clean(void) {
     ebx_ui_win_clean_each(g_menu_win);
 }
 
-[[maybe_unused]]
 static void menu_move_to(int x, int y) {
     menu_clean();
     ebx_ui_win_move_to(g_menu_win, x, y);
