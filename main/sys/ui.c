@@ -18,7 +18,7 @@ struct ebx_ui_win_s {
     uint32_t draw_flags;
 };
 
-static inline void clean_wbuf(ebx_disp_color_t* wb, ebx_disp_color_t bgc, int sz) {
+static inline void clean_buf(ebx_disp_color_t* wb, ebx_disp_color_t bgc, int sz) {
     for(int i = 0; i < sz; i++) {
         wb[i] = bgc;
     }
@@ -32,7 +32,7 @@ static void* alloc_wbuf(void* swp, void* pctx) {
     int win_size = wh->width * wh->height;
     ebx_disp_color_t bgc = wh->bgcolor;
     ebx_disp_color_t* wb = (ebx_disp_color_t*)malloc(win_size * sizeof(ebx_disp_color_t));
-    clean_wbuf(wb, bgc, win_size);
+    clean_buf(wb, bgc, win_size);
     return (void*)wb;
 };
 
@@ -76,7 +76,69 @@ void ebx_ui_win_erase(ebx_ui_win_t* wh, int ofs_x, int ofs_y, int width, int hei
 
 void ebx_ui_win_clean(ebx_ui_win_t* wh) {
     void* wbuf = ebx_disp_fctx_peek(wh->frame_ctx);
-    clean_wbuf((ebx_disp_color_t*)wbuf, wh->bgcolort, wh->width * wh->height);
+    clean_buf((ebx_disp_color_t*)wbuf, wh->bgcolort, wh->width * wh->height);
+}
+
+typedef struct {
+    int win_width;
+    int win_height;
+    void* buf;
+    int ofs_x;
+    int ofs_y;
+    int width;
+    int height;
+    uint32_t flags;
+} blit_param_t;
+
+static void* blit_wbuf(void* swp, void* pctx) {
+    blit_param_t* pparam = pctx;
+    ebx_disp_blit_at(swp, pparam->win_width, pparam->win_height, pparam->buf, pparam->ofs_x, pparam->ofs_y, pparam->width, pparam->height, pparam->flags);
+}
+
+typedef struct {
+    ebx_disp_color_t bgcolor;
+    int size;
+} clean_param_t;
+
+static void* clean_wbuf(void* swp, void* pctx) {
+    clean_param_t* pparam = pctx;
+    clean_buf((ebx_disp_color_t*)swp, pparam->bgcolort, pparam->size);
+}
+
+void ebx_ui_win_draw_each(ebx_ui_win_t* wh, void* buf, int ofs_x, int ofs_y, int width, int height) {
+    blit_param_t param = {
+        .win_width = wh->width,
+        .win_height = wh->height,
+        .buf = buf,
+        .ofs_x = ofs_x.
+        .ofs_y = ofs_y,
+        .width = width,
+        .height = height,
+        .flags = wh->draw_flags,
+    };
+    ebx_disp_fctx_foreach(wh->frame_ctx, blit_wbuf, &param);
+}
+
+void ebx_ui_win_erase_each(ebx_ui_win_t* wh, int ofs_x, int ofs_y, int width, int height) {
+    blit_param_t param = {
+        .win_width = wh->width,
+        .win_height = wh->height,
+        .buf = NULL,
+        .ofs_x = ofs_x.
+        .ofs_y = ofs_y,
+        .width = width,
+        .height = height,
+        .flags = (wh->draw_flags & ~EBX_DISP_DRAW_FLAG_TRANSP | EBX_DISP_DRAW_FLAG_FILL),
+    };
+    ebx_disp_fctx_foreach(wh->frame_ctx, blit_wbuf, &param);
+}
+
+void ebx_ui_win_clean_each(ebx_ui_win_t* wh) {
+    clean_param_t param = {
+        .bgcolor = wh->bgcolort,
+        .size = wh->width * wh->height,
+    };
+    ebx_disp_fctx_foreach(wh->frame_ctx, clean_wbuf, &param);
 }
 
 void ebx_ui_win_swap(ebx_ui_win_t* wh) {
