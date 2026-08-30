@@ -77,10 +77,12 @@ static void app_task(void* p_param) {
     int menu_keypress_cnt = -1;
     menu_key_stat_t menu_key_stat = MENU_KEY_STAT_IDLE;
     int menu_keypress_pad = g_menuconf_pad_kpdef;
+    int menu_exhausted = 0;
     menu_init();
     menu_move_to(120, 5);
     for(;;) {
         uint32_t keys = ebx_ipt_get();
+        if(menu_exhausted > 0) menu_exhausted--;
         if(keys != last_keys) {
             last_keys = keys;
             if(menu_disp) {
@@ -114,6 +116,7 @@ static void app_task(void* p_param) {
                             break;
                         }
                         menu_key_stat = MENU_KEY_STAT_IDLE;
+                        menu_exhausted = 20;
                     }
                     menu_disp = false;
                     menu_clean();
@@ -131,9 +134,10 @@ static void app_task(void* p_param) {
                     menu_clean();
                     DBG_LOGI(TAG, "menu close");
                     menu_key_stat = MENU_KEY_STAT_IDLE;
+                    menu_exhausted = 20;
                 }
             }
-            if(!menu_disp) {
+            if(!menu_disp && menu_exhausted <= 0) {
                 int pad = 0;
                 if(EBX_IPT_CHK_KEYS(keys, g_menuconf_key)) {
                     if(menu_keypress_cnt < 0) {
