@@ -108,7 +108,7 @@ void ebx_disp_copy_frame(void) {
 #endif
 }
 
-void ebx_disp_blit_at(void* dbuf, int dwidth, int dheight, void* buf, int ofs_x, int ofs_y, int width, int height, uint32_t flags) {
+void ebx_disp_blit_at(void* dbuf, int dwidth, int dheight, const void* buf, int ofs_x, int ofs_y, int width, int height, uint32_t flags) {
     width = MIN(ofs_x + width, dwidth);
     ofs_x = MAX(ofs_x, 0);
     width -= ofs_x;
@@ -140,7 +140,7 @@ void ebx_disp_blit_at(void* dbuf, int dwidth, int dheight, void* buf, int ofs_x,
     }
 }
 
-void ebx_disp_draw_at(void* buf, int ofs_x, int ofs_y, int width, int height, uint32_t flags) {
+void ebx_disp_draw_at(const void* buf, int ofs_x, int ofs_y, int width, int height, uint32_t flags) {
 #ifdef LOCK_DRAW
     xSemaphoreTake(g_draw_sem, portMAX_DELAY);
 #endif

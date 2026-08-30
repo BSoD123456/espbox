@@ -15,8 +15,8 @@
 #define APP_NAME    gnuboy
 static const char* TAG = "ebx_app_gnuboy";
 
-//#define GB_DBG_LOG
-#undef GB_DBG_LOG
+#define GB_DBG_LOG
+//#undef GB_DBG_LOG
 #ifdef GB_DBG_LOG
 #define DBG_LOGI            ESP_LOGI
 #else
@@ -34,8 +34,8 @@ static char* g_rom_path = NULL;
 static char* g_sram_path = NULL;
 static char* g_stat_path = NULL;
 
-static int  g_menuconf_pad = NULL;
-static int  g_menuconf_padpress = 0;
+static int  g_menuconf_key = 0;
+static int  g_menuconf_keypress = 0;
 static bool g_menuconf_hook = false;
 
 static void cb_gb_video(void* buffer) {
@@ -63,64 +63,63 @@ static void app_task(void* p_param) {
     uint32_t fps = 0;
     bool do_draw = true;
     uint32_t cnt_draw = 0;
-    uint32_t keys = 0;
     uint32_t last_keys = 0;
     uint32_t cnt_skip = 0;
     bool last_sram_dirty = false;
     bool menu_disp = false;
-    int menu_padpress_cnt = -1;
+    int menu_keypress_cnt = -1;
     menu_init();
     for(;;) {
-        keys = ebx_ipt_get();
+        uint32_t keys = ebx_ipt_get();
         if(keys != last_keys) {
-            int pad = 0;
-            if(EBX_IPT_CHK_KEYS(keys, EBX_IPT_KEY_UP)) pad |= GB_PAD_UP;
-            if(EBX_IPT_CHK_KEYS(keys, EBX_IPT_KEY_DOWN)) pad |= GB_PAD_DOWN;
-            if(EBX_IPT_CHK_KEYS(keys, EBX_IPT_KEY_LEFT)) pad |= GB_PAD_LEFT;
-            if(EBX_IPT_CHK_KEYS(keys, EBX_IPT_KEY_RIGHT)) pad |= GB_PAD_RIGHT;
-            if(EBX_IPT_CHK_KEYS(keys, EBX_IPT_KEY_A)) pad |= GB_PAD_A;
-            if(EBX_IPT_CHK_KEYS(keys, EBX_IPT_KEY_B)) pad |= GB_PAD_B;
             if(menu_disp) {
-                if(pad & GB_PAD_B) {
+                if(EBX_IPT_CHK_KEYS(keys, EBX_IPT_KEY_B)) {
                     menu_disp = false;
                     menu_clean();
                     DBG_LOGI(TAG, "menu close");
-                } else if(pad & GB_PAD_A) {
+                } else if(EBX_IPT_CHK_KEYS(keys, EBX_IPT_KEY_A)) {
                     int sidx = menu_get_sel();
-                    DBG_LOGI(TAG, "menu sel %ld", sidx);
-                } else if(pad & GB_PAD_UP) {
+                    DBG_LOGI(TAG, "menu sel %d", sidx);
+                } else if(EBX_IPT_CHK_KEYS(keys, EBX_IPT_KEY_UP)) {
                     menu_sel_by(0, -1);
-                } else if(pad & GB_PAD_DOWN) {
+                } else if(EBX_IPT_CHK_KEYS(keys, EBX_IPT_KEY_DOWN)) {
                     menu_sel_by(0, 1);
-                } else if(pad & GB_PAD_LEFT) {
+                } else if(EBX_IPT_CHK_KEYS(keys, EBX_IPT_KEY_LEFT)) {
                     menu_sel_by(-1, 0);
-                } else if(pad & GB_PAD_RIGHT) {
+                } else if(EBX_IPT_CHK_KEYS(keys, EBX_IPT_KEY_RIGHT)) {
                     menu_sel_by(1, 0);
                 }
             } else {
-                if(FLAG_MATCH(pad, g_menuconf_pad)) {
+                if(EBX_IPT_CHK_KEYS(keys, g_menuconf_key)) {
                     if(g_menuconf_hook) {
-                        pad &= ~g_menuconf_pad;
+                        EBX_IPT_CLR_KEYS(keys, g_menuconf_key);
                     }
-                    if(menu_padpress_cnt < 0) {
-                        menu_padpress_cnt = 0;
+                    if(menu_keypress_cnt < 0) {
+                        menu_keypress_cnt = 0;
                     }
                 }
+                int pad = 0;
+                if(EBX_IPT_CHK_KEYS(keys, EBX_IPT_KEY_UP)) pad |= GB_PAD_UP;
+                if(EBX_IPT_CHK_KEYS(keys, EBX_IPT_KEY_DOWN)) pad |= GB_PAD_DOWN;
+                if(EBX_IPT_CHK_KEYS(keys, EBX_IPT_KEY_LEFT)) pad |= GB_PAD_LEFT;
+                if(EBX_IPT_CHK_KEYS(keys, EBX_IPT_KEY_RIGHT)) pad |= GB_PAD_RIGHT;
+                if(EBX_IPT_CHK_KEYS(keys, EBX_IPT_KEY_A)) pad |= GB_PAD_A;
+                if(EBX_IPT_CHK_KEYS(keys, EBX_IPT_KEY_B)) pad |= GB_PAD_B;
                 gnuboy_set_pad(pad);
                 DBG_LOGI(TAG, "pad 0x%lx", keys);
             }
             last_keys = keys;
         }
-        if(menu_padpress_cnt >= 0) {
-            if(FLAG_MATCH(pad, g_menuconf_pad)) {
-                if(menu_padpress_cnt++ >= g_menuconf_padpress) {
+        if(menu_keypress_cnt >= 0) {
+            if(EBX_IPT_CHK_KEYS(keys, g_menuconf_key)) {
+                if(menu_keypress_cnt++ >= g_menuconf_keypress) {
                     menu_disp = true;
                     ebx_disp_copy_frame();
                     DBG_LOGI(TAG, "menu open");
-                    menu_padpress_cnt = -1;
+                    menu_keypress_cnt = -1;
                 }
             } else {
-                menu_padpress_cnt = -1;
+                menu_keypress_cnt = -1;
             }
         }
         if(menu_disp) {
@@ -170,8 +169,8 @@ REG_APP {
     g_rom_path = params[0];
     g_sram_path = params[1];
     g_stat_path = params[2];
-    g_menuconf_pad = GB_PAD_B;
-    g_menuconf_padpress = 120;
+    g_menuconf_key = EBX_IPT_KEY_B;
+    g_menuconf_keypress = 120;
     g_menuconf_hook = true;
     TaskHandle_t hndl_disp = NULL;
     xTaskCreate(app_task, "ebx_app_gnuboy", 0x4000, NULL, 3, &hndl_disp);

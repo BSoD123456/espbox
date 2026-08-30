@@ -12,6 +12,8 @@ enum {
 };
 
 #define EBX_IPT_CHK_KEYS(k, v)  ((k) & (1 << (v)))
+#define EBX_IPT_SET_KEYS(k, v)  ((k) |= (1 << (v)))
+#define EBX_IPT_CLR_KEYS(k, v)  ((k) &= ~(1 << (v)))
 
 void ebx_ipt_init(void);
 uint32_t ebx_ipt_get(void);

@@ -23,7 +23,7 @@
 #define CW                      EBX_DISP_COLOR(255, 255, 255)
 #define CB                      EBX_DISP_COLOR(0, 0, 0)
 
-static const ebx_ui_win_t menu_icon_empty[MENU_ICON_SIZE_H][MENU_ICON_SIZE_W] = {
+static const ebx_disp_color_t menu_icon_empty[MENU_ICON_SIZE_H][MENU_ICON_SIZE_W] = {
     {   C0, C0, C0, C0, C0, C0, C0, C0  },
     {   C0, C0, C0, C0, C0, C0, C0, C0  },
     {   C0, C0, C0, C0, C0, C0, C0, C0  },
@@ -34,7 +34,7 @@ static const ebx_ui_win_t menu_icon_empty[MENU_ICON_SIZE_H][MENU_ICON_SIZE_W] = 
     {   C0, C0, C0, C0, C0, C0, C0, C0  },
 };
 
-static const ebx_ui_win_t menu_icon_key_sel[MENU_ICON_SIZE_H][MENU_ICON_SIZE_W] = {
+static const ebx_disp_color_t menu_icon_key_sel[MENU_ICON_SIZE_H][MENU_ICON_SIZE_W] = {
     {   C0, C0, C0, C0, C0, C0, C0, C0  },
     {   C0, C0, C0, C0, C0, C0, C0, C0  },
     {   C0, C0, CW, CW, CW, CW, C0, C0  },
@@ -45,7 +45,7 @@ static const ebx_ui_win_t menu_icon_key_sel[MENU_ICON_SIZE_H][MENU_ICON_SIZE_W] 
     {   C0, C0, C0, C0, C0, C0, C0, C0  },
 };
 
-static const ebx_ui_win_t menu_icon_key_start[MENU_ICON_SIZE_H][MENU_ICON_SIZE_W] = {
+static const ebx_disp_color_t menu_icon_key_start[MENU_ICON_SIZE_H][MENU_ICON_SIZE_W] = {
     {   C0, CW, C0, C0, C0, C0, C0, C0  },
     {   CW, CB, CW, CW, C0, C0, C0, C0  },
     {   CW, CB, CB, CB, CW, CW, C0, C0  },
@@ -56,7 +56,7 @@ static const ebx_ui_win_t menu_icon_key_start[MENU_ICON_SIZE_H][MENU_ICON_SIZE_W
     {   C0, CW, CW, C0, C0, C0, C0, C0  },
 };
 
-static const ebx_ui_win_t menu_icon_arrow[MENU_ICON_ARROW_SIZE_H][MENU_ICON_ARROW_SIZE_W] = {
+static const ebx_disp_color_t menu_icon_arrow[MENU_ICON_ARROW_SIZE_H][MENU_ICON_ARROW_SIZE_W] = {
     {   C0, CW, C0, C0  },
     {   CW, CB, CW, C0  },
     {   CW, CB, CB, CW  },
@@ -98,11 +98,11 @@ static void _update_arrow(void) {
     if(g_menu_sidx_drawn >= 0) {
         sel_row = g_menu_sidx_drawn / MENU_ICON_NUM_W;
         sel_col = g_menu_sidx_drawn % MENU_ICON_NUM_W;
-        ebx_ui_win_erase(g_menu_win, MENU_UNIT_SIZE_W * sel_col, MENU_UNIT_SIZE_H * sel_col, MENU_ICON_ARROW_SIZE_W, MENU_ICON_ARROW_SIZE_H);
+        ebx_ui_win_erase(g_menu_win, MENU_UNIT_SIZE_W * sel_col, MENU_UNIT_SIZE_H * sel_row, MENU_ICON_ARROW_SIZE_W, MENU_ICON_ARROW_SIZE_H);
     }
     sel_row = g_menu_sidx / MENU_ICON_NUM_W;
     sel_col = g_menu_sidx % MENU_ICON_NUM_W;
-    ebx_ui_win_draw(g_menu_win, menu_icon_arrow, MENU_UNIT_SIZE_W * sel_col, MENU_UNIT_SIZE_H * sel_col, MENU_ICON_ARROW_SIZE_W, MENU_ICON_ARROW_SIZE_H);
+    ebx_ui_win_draw(g_menu_win, menu_icon_arrow, MENU_UNIT_SIZE_W * sel_col, MENU_UNIT_SIZE_H * sel_row, MENU_ICON_ARROW_SIZE_W, MENU_ICON_ARROW_SIZE_H);
     g_menu_sidx_drawn = g_menu_sidx;
 }
 
@@ -128,21 +128,22 @@ static void menu_clean(void) {
     g_menu_icons_drawn = false;
 }
 
+[[maybe_unused]]
 static void menu_move_to(int x, int y) {
     menu_clean();
-    ebx_ui_win_move_to(x, y);
+    ebx_ui_win_move_to(g_menu_win, x, y);
 }
 
 static void menu_update(void) {
     ebx_disp_render();
     if(g_menu_icons_drawn) {
-        ebx_ui_win_swap();
+        ebx_ui_win_swap(g_menu_win);
     } else {
         _draw_icons();
         g_menu_icons_drawn = true;
     }
     _update_arrow();
-    ebx_ui_win_swap();
+    ebx_ui_win_swap(g_menu_win);
 }
 
 static void menu_init(void) {
@@ -156,6 +157,7 @@ static void menu_init(void) {
     g_menu_icons_drawn = false;
 }
 
+[[maybe_unused]]
 static void menu_deinit(void) {
     if(g_menu_win) {
         ebx_ui_win_destroy(g_menu_win);
