@@ -15,8 +15,8 @@
 #define APP_NAME    gnuboy
 static const char* TAG = "ebx_app_gnuboy";
 
-#define GB_DBG_LOG
-//#undef GB_DBG_LOG
+//#define GB_DBG_LOG
+#undef GB_DBG_LOG
 #ifdef GB_DBG_LOG
 #define DBG_LOGI            ESP_LOGI
 #else
@@ -72,6 +72,7 @@ static void app_task(void* p_param) {
     for(;;) {
         uint32_t keys = ebx_ipt_get();
         if(keys != last_keys) {
+            last_keys = keys;
             if(menu_disp) {
                 if(EBX_IPT_CHK_KEYS(keys, EBX_IPT_KEY_B)) {
                     menu_disp = false;
@@ -107,8 +108,10 @@ static void app_task(void* p_param) {
                 if(EBX_IPT_CHK_KEYS(keys, EBX_IPT_KEY_B)) pad |= GB_PAD_B;
                 gnuboy_set_pad(pad);
                 DBG_LOGI(TAG, "pad 0x%lx", keys);
+                if(menu_keypress_cnt >= 0) {
+                    keys = last_keys;
+                }
             }
-            last_keys = keys;
         }
         if(menu_keypress_cnt >= 0) {
             if(EBX_IPT_CHK_KEYS(keys, g_menuconf_key)) {
