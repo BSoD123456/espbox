@@ -19,8 +19,13 @@
 
 static const char* TAG = "ebx_disp";
 
+#if 0
 #define DISP_RES_LCD_W      EBX_DISP_RES_H
 #define DISP_RES_LCD_H      EBX_DISP_RES_W
+#else
+#define DISP_RES_LCD_W      EBX_DISP_RES_W
+#define DISP_RES_LCD_H      EBX_DISP_RES_H
+#endif
 #define DISP_BYTES_PIXEL    2
 #define DISP_BUFF_SZ        (DISP_RES_LCD_W * DISP_RES_LCD_H * DISP_BYTES_PIXEL)
 
