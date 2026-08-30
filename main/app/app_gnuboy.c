@@ -100,10 +100,22 @@ static void app_task(void* p_param) {
                         }
                         menu_keypress_cnt = 0;
                         menu_key_stat = MENU_KEY_STAT_PRESS;
-                        menu_disp = false;
-                        menu_clean();
-                        DBG_LOGI(TAG, "menu close");
+                    } else {
+                        switch(sidx) {
+                        case 3:
+                            gnuboy_reset(false);
+                            break;
+                        case 4:
+                            gnuboy_load_state(g_stat_path);
+                            break;
+                        case 5:
+                            gnuboy_save_state(g_stat_path);
+                            break;
+                        }
                     }
+                    menu_disp = false;
+                    menu_clean();
+                    DBG_LOGI(TAG, "menu close");
                 } else if(EBX_IPT_CHK_KEYS(keys, EBX_IPT_KEY_UP)) {
                     menu_sel_by(0, -1);
                 } else if(EBX_IPT_CHK_KEYS(keys, EBX_IPT_KEY_DOWN)) {
