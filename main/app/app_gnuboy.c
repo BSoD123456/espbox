@@ -113,7 +113,8 @@ static void app_task(void* p_param) {
                 } else if(EBX_IPT_CHK_KEYS(keys, EBX_IPT_KEY_RIGHT)) {
                     menu_sel_by(1, 0);
                 }
-            } else {
+            }
+            if(!menu_disp) {
                 int pad = 0;
                 if(EBX_IPT_CHK_KEYS(keys, g_menuconf_key)) {
                     if(menu_keypress_cnt < 0) {
@@ -121,12 +122,13 @@ static void app_task(void* p_param) {
                     }
                     pad |= menu_keypress_pad;
                 } else if(menu_keypress_cnt >= 0) {
+                    if(menu_key_stat == MENU_KEY_STAT_IDLE) {
+                        pad |= g_menuconf_pad;
+                        EBX_IPT_SET_KEYS(last_keys, g_menuconf_key);
+                    }
                     menu_keypress_cnt = -1;
                     menu_keypress_pad = 0;
                     menu_key_stat = MENU_KEY_STAT_IDLE;
-                    if(menu_key_stat == MENU_KEY_STAT_IDLE) {
-                        pad |= g_menuconf_pad;
-                    }
                 }
                 if(EBX_IPT_CHK_KEYS(keys, EBX_IPT_KEY_UP)) pad |= GB_PAD_UP;
                 if(EBX_IPT_CHK_KEYS(keys, EBX_IPT_KEY_DOWN)) pad |= GB_PAD_DOWN;
@@ -135,8 +137,8 @@ static void app_task(void* p_param) {
                 if(EBX_IPT_CHK_KEYS(keys, EBX_IPT_KEY_A) && g_menuconf_key != EBX_IPT_KEY_A) pad |= GB_PAD_A;
                 if(EBX_IPT_CHK_KEYS(keys, EBX_IPT_KEY_B) && g_menuconf_key != EBX_IPT_KEY_B) pad |= GB_PAD_B;
                 gnuboy_set_pad(pad);
-                DBG_LOGI(TAG, "pad 0x%lx", keys);
-                printf("pad 0x%lx\n", keys);
+                DBG_LOGI(TAG, "pad 0x%x", pad);
+                printf("pad 0x%x\n", pad);
             }
         }
         if(menu_keypress_cnt >= 0) {
