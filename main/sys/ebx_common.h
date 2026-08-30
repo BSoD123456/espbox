@@ -13,4 +13,6 @@
 #define MAX(a, b)           (((a) > (b)) ? (a) : (b))
 #define MIN(a, b)           (((a) < (b)) ? (a) : (b))
 
+#define DIVMOD(a, b)        (((a) < 0) ? ((a) % (b) + (b)) : ((a) % (b)))
+
 #endif /*__INC_EBX_COMMON_H__*/

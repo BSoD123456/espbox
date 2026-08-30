@@ -106,16 +106,18 @@ static void _update_arrow(void) {
     ebx_ui_win_draw(g_menu_win, menu_icon_arrow, MENU_UNIT_SIZE_W * sel_col, MENU_UNIT_SIZE_H * sel_row, MENU_ICON_ARROW_SIZE_W, MENU_ICON_ARROW_SIZE_H);
 }
 
-static void menu_sel_to(int sidx) {
-    sidx %= MENU_ICON_NUM;
+static void menu_sel_to(int scol, int srow) {
+    int sidx = DIVMOD(srow * MENU_ICON_NUM_W + scol, MENU_ICON_NUM);
     if(sidx == g_menu_sidx) {
         return;
     }
     g_menu_sidx = sidx;
 }
 
-static inline void menu_sel_by(int dcol, int drow) {
-    menu_sel_to(drow * MENU_ICON_NUM_W + dcol);
+static void menu_sel_by(int dcol, int drow) {
+    int sel_row = g_menu_sidx / MENU_ICON_NUM_W;
+    int sel_col = g_menu_sidx % MENU_ICON_NUM_W;
+    menu_sel_to(DIVMOD(sel_col + dcol, MENU_ICON_NUM_W), DIVMOD(sel_row + drow, MENU_ICON_NUM_H));
 }
 
 static inline int menu_get_sel(void) {
