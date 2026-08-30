@@ -88,33 +88,22 @@ static const void* menu_icons[MENU_ICON_NUM_H][MENU_ICON_NUM_W] = {
 
 static ebx_ui_win_t* g_menu_win = NULL;
 static int g_menu_sidx = 0;
-static int g_menu_sidx_drawn = 0;
-static bool g_menu_icons_drawn = false;
 
 static void _draw_icons(void) {
     for(int row = 0; row < MENU_ICON_NUM_H; row++) {
         int y = MENU_UNIT_SIZE_H * row;
         for(int col = 0; col < MENU_ICON_NUM_W; col++) {
             int x = MENU_UNIT_SIZE_W * col;
-            ebx_ui_win_draw_each(g_menu_win, menu_icons[row][col], x + MENU_ICON_ARROW_SIZE_W, y, MENU_ICON_SIZE_W, MENU_ICON_SIZE_H);
+            ebx_ui_win_erase(g_menu_win, x , y, MENU_ICON_ARROW_SIZE_W, MENU_ICON_ARROW_SIZE_H);
+            ebx_ui_win_draw(g_menu_win, menu_icons[row][col], x + MENU_ICON_ARROW_SIZE_W, y, MENU_ICON_SIZE_W, MENU_ICON_SIZE_H);
         }
     }
 }
 
 static void _update_arrow(void) {
-    if(g_menu_sidx_drawn == g_menu_sidx) {
-        return;
-    }
-    int sel_row, sel_col;
-    if(g_menu_sidx_drawn >= 0) {
-        sel_row = g_menu_sidx_drawn / MENU_ICON_NUM_W;
-        sel_col = g_menu_sidx_drawn % MENU_ICON_NUM_W;
-        ebx_ui_win_erase(g_menu_win, MENU_UNIT_SIZE_W * sel_col, MENU_UNIT_SIZE_H * sel_row, MENU_ICON_ARROW_SIZE_W, MENU_ICON_ARROW_SIZE_H);
-    }
-    sel_row = g_menu_sidx / MENU_ICON_NUM_W;
-    sel_col = g_menu_sidx % MENU_ICON_NUM_W;
+    int sel_row = g_menu_sidx / MENU_ICON_NUM_W;
+    int sel_col = g_menu_sidx % MENU_ICON_NUM_W;
     ebx_ui_win_draw(g_menu_win, menu_icon_arrow, MENU_UNIT_SIZE_W * sel_col, MENU_UNIT_SIZE_H * sel_row, MENU_ICON_ARROW_SIZE_W, MENU_ICON_ARROW_SIZE_H);
-    g_menu_sidx_drawn = g_menu_sidx;
 }
 
 static void menu_sel_to(int sidx) {
@@ -133,10 +122,8 @@ static inline int menu_get_sel(void) {
     return g_menu_sidx;
 }
 
-static void menu_clean(void) {
+static inline void menu_clean(void) {
     ebx_ui_win_clean_each(g_menu_win);
-    g_menu_sidx_drawn = -1;
-    g_menu_icons_drawn = false;
 }
 
 [[maybe_unused]]
@@ -147,13 +134,8 @@ static void menu_move_to(int x, int y) {
 
 static void menu_update(void) {
     ebx_disp_render();
-    if(g_menu_icons_drawn) {
-        ebx_ui_win_swap(g_menu_win);
-    } else {
-        _draw_icons();
-        g_menu_icons_drawn = true;
-        ebx_ui_win_swap(g_menu_win);
-    }
+    ebx_ui_win_swap(g_menu_win);
+    _draw_icons();
     _update_arrow();
     ebx_ui_win_swap(g_menu_win);
 }
@@ -165,8 +147,6 @@ static void menu_init(void) {
     }
     g_menu_win = ebx_ui_win_create(MENU_SIZE_W, MENU_SIZE_H, MENU_COLOR_MAGICPINK, EBX_DISP_DRAW_FLAG_TRANSP);
     g_menu_sidx = 0;
-    g_menu_sidx_drawn = -1;
-    g_menu_icons_drawn = false;
 }
 
 [[maybe_unused]]
