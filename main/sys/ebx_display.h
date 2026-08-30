@@ -30,8 +30,8 @@ typedef uint16_t ebx_disp_color_t;
 
 #define EBX_DISP_DRAW_FLAGS(flags, ...)     ((uint32_t)( (flags) __VA_OPT__(| (EBX_DISP_DRAW_FLAG_COLOR_MASK & (ebx_disp_color_t)(__VA_ARGS__)) ) ))
 
-void ebx_disp_blit_at(void* dbuf, int dwidth, int dheight, const void* buf, int ofs_x, int ofs_y, int width, int height, uint32_t flags);
-void ebx_disp_draw_at(const void* buf, int ofs_x, int ofs_y, int width, int height, uint32_t flags);
+void ebx_disp_blit_at(void* dbuf, int dwidth, int dheight, void* buf, int ofs_x, int ofs_y, int width, int height, uint32_t flags);
+void ebx_disp_draw_at(void* buf, int ofs_x, int ofs_y, int width, int height, uint32_t flags);
 void ebx_disp_copy_frame(void);
 
 #define EBX_DISP_FCTX_STATIC(vname)     void* vname[2] = {}

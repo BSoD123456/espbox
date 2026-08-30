@@ -34,6 +34,17 @@ static const ebx_disp_color_t menu_icon_empty[MENU_ICON_SIZE_H][MENU_ICON_SIZE_W
     {   C0, C0, C0, C0, C0, C0, C0, C0  },
 };
 
+static const ebx_disp_color_t menu_icon_white[MENU_ICON_SIZE_H][MENU_ICON_SIZE_W] = {
+    {   CW, CW, CW, CW, CW, CW, CW, CW  },
+    {   CW, CW, CW, CW, CW, CW, CW, CW  },
+    {   CW, CW, CW, CW, CW, CW, CW, CW  },
+    {   CW, CW, CW, CW, CW, CW, CW, CW  },
+    {   CW, CW, CW, CW, CW, CW, CW, CW  },
+    {   CW, CW, CW, CW, CW, CW, CW, CW  },
+    {   CW, CW, CW, CW, CW, CW, CW, CW  },
+    {   CW, CW, CW, CW, CW, CW, CW, CW  },
+};
+
 static const ebx_disp_color_t menu_icon_key_sel[MENU_ICON_SIZE_H][MENU_ICON_SIZE_W] = {
     {   C0, C0, C0, C0, C0, C0, C0, C0  },
     {   C0, C0, C0, C0, C0, C0, C0, C0  },
@@ -71,8 +82,8 @@ static const ebx_disp_color_t menu_icon_arrow[MENU_ICON_ARROW_SIZE_H][MENU_ICON_
 #undef CB
 
 static const void* menu_icons[MENU_ICON_NUM_H][MENU_ICON_NUM_W] = {
-    {   menu_icon_key_sel,      menu_icon_key_start,    menu_icon_empty,        },
-    {   menu_icon_empty,        menu_icon_empty,        menu_icon_empty,        },
+    {   menu_icon_key_sel,      menu_icon_key_start,    menu_icon_white,        },
+    {   menu_icon_white,        menu_icon_white,        menu_icon_white,        },
 };
 
 static ebx_ui_win_t* g_menu_win = NULL;

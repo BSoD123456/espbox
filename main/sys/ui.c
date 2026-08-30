@@ -67,7 +67,7 @@ void ebx_ui_win_move_to(ebx_ui_win_t* wh, int x, int y) {
 
 void ebx_ui_win_draw(ebx_ui_win_t* wh, const void* buf, int ofs_x, int ofs_y, int width, int height) {
     void* wbuf = ebx_disp_fctx_peek(wh->frame_ctx);
-    ebx_disp_blit_at(wbuf, wh->width, wh->height, buf, ofs_x, ofs_y, width, height, wh->draw_flags);
+    ebx_disp_blit_at(wbuf, wh->width, wh->height, (void*)buf, ofs_x, ofs_y, width, height, wh->draw_flags);
 }
 
 void ebx_ui_win_erase(ebx_ui_win_t* wh, int ofs_x, int ofs_y, int width, int height) {
@@ -93,7 +93,7 @@ typedef struct {
 
 static void* blit_wbuf(void* swp, void* pctx) {
     blit_param_t* pparam = pctx;
-    ebx_disp_blit_at(swp, pparam->win_width, pparam->win_height, pparam->buf, pparam->ofs_x, pparam->ofs_y, pparam->width, pparam->height, pparam->flags);
+    ebx_disp_blit_at(swp, pparam->win_width, pparam->win_height, (void*)pparam->buf, pparam->ofs_x, pparam->ofs_y, pparam->width, pparam->height, pparam->flags);
     return swp;
 }
 
