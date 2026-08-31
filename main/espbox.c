@@ -38,7 +38,7 @@ static int match_file(int didx, const char* surfix, char** p_rname) {
     int mcnt = 0;
     char* rname = NULL;
     while( (ent = readdir(root)) != NULL ) {
-        if(ent->d_type == DT_REG) continue;
+        if(ent->d_type != DT_REG) continue;
         int sfidx = find_surfix(ent->d_name, surfix);
         if(sfidx < 0 || mcnt++ < didx) continue;
         size_t rlen = strlen(g_root) + strlen(ent->d_name) + 2;
@@ -77,7 +77,6 @@ void app_main(void) {
         if(cstidx < 0) break;
         stidx = cstidx;
     }
-    printf("h1 phase=%d, stidx=%d, cstidx=%d, ostidx=%d\n", phase, stidx, cstidx, ostidx);
     if(stidx != ostidx) {
         if(stidx > 0xff || stidx < 0) {
             ESP_LOGE(TAG, "invalid power_start_idx");
