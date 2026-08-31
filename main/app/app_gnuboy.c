@@ -220,24 +220,19 @@ static void parse_menuconf(void) {
     if(slen > 0x400) {
         goto done;
     }
-    int cidx = (int)slen - 1;
-    int ced = -1;
-    int hit_cnt = 0;
-    for(; cidx >= 0; cidx--) {
+    int cst = (int)slen;
+    int ced = cst;
+    for(int cidx = cst - 1; cidx >= 0; cidx--) {
         char c = g_rom_path[cidx];
         if(c == '.') {
-            if(++hit_cnt == 1) {
-                ced = cidx;
-            } else if(hit_cnt == 2) {
-                cidx++;
-                break;
-            }
+            ced = cst;
+            cst = cidx;
         } else if(c == '/') {
-            cidx = -1;
             break;
         }
     }
-    if(cidx < 0 || cidx >= ced) {
+    int cidx = cst + 1;
+    if(cidx >= ced) {
         goto done;
     }
     switch(g_rom_path[cidx]) {
