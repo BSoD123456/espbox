@@ -65,6 +65,18 @@ static int match_file(int didx, const char* surfix, char** p_rname) {
     return didx - mcnt;
 }
 
+void run_gnuboy(const char* rom_name, const char* sav_name, const char* sta_name) {
+    ebx_disp_init();
+    ebx_ipt_init();
+    SET_APP_PARAM(gnuboy) {
+        rom_name,
+        sav_name,
+        sta_name,
+        NULL
+    };
+    INIT_APP(gnuboy);
+}
+
 void app_main(void) {
     ebx_nvs_init();
     ebx_fs_init();
@@ -111,6 +123,7 @@ void app_main(void) {
         memcpy(sta_name, dfname, blen);
         memcpy(sta_name + blen, ".sta\0", 5);
         ESP_LOGI(TAG, "sta file: %s", sta_name);
+        run_gnuboy(dfname, sav_name, sta_name);
         free(sav_name);
         free(sta_name);
         free(dfname);
@@ -119,17 +132,4 @@ void app_main(void) {
         ESP_LOGI(TAG, "enter inner entry: %d", cstidx + MAX_INNER_ENTRIES);
         break;
     }
-    return;
-
-    ebx_disp_init();
-    ebx_ipt_init();
-#if 1
-    SET_APP_PARAM(gnuboy) {
-        "/storage/siren2.a2.zip",
-        "/storage/siren2.sav",
-        "/storage/siren2.sta",
-        NULL
-    };
-    INIT_APP(gnuboy);
-#endif
 }
