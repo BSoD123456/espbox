@@ -294,13 +294,7 @@ done:
 }
 
 REG_APP {
-    size_t free_heap = heap_caps_get_free_size(MALLOC_CAP_DEFAULT);
-    ESP_LOGI(TAG, "free: %zu (%zu KB)", free_heap, free_heap / 1024);
-
-    ebx_fs_init();
-    ebx_disp_init();
-    ebx_ipt_init();
-
+    ESP_LOGI(TAG, "start app gnuboy");
     g_rom_path = params[0];
     g_sram_path = params[1];
     g_stat_path = params[2];
