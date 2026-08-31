@@ -12,7 +12,7 @@ static char* TAG = "ebx_main";
 
 #define MAX_INNER_ENTRIES   1
 
-#define APP_SURFIX_1        ".gbc.zip"
+#define APP_SURFIX_0        ".gbc.zip"
 
 const char* g_root = "/storage";
 
@@ -82,7 +82,7 @@ void app_main(void) {
     int phase;
     for(;;) {
         phase = 0;
-        cstidx = match_file(cstidx, APP_SURFIX_1, &dfname);
+        cstidx = match_file(cstidx, APP_SURFIX_0, &dfname);
         if(cstidx < 0) break;
         assert(dfname == NULL);
         phase++;
@@ -101,7 +101,18 @@ void app_main(void) {
     case 0:
         assert(dfname != NULL);
         ESP_LOGI(TAG, "enter file entry: %s", dfname);
-        size_t blen = find_noext(dfname, APP_SURFIX_1);
+        size_t blen = find_noext(dfname, APP_SURFIX_0);
+        size_t dlen = blen + 5;
+        char* sav_name = malloc(dlen);
+        memcpy(sav_name, dfname, blen);
+        memcpy(sav_name + blen, ".sav\0", 5);
+        ESP_LOGI(TAG, "sav file: %s", sav_name);
+        char* sta_name = malloc(dlen);
+        memcpy(sta_name, dfname, blen);
+        memcpy(sta_name + blen, ".sta\0", 5);
+        ESP_LOGI(TAG, "sta file: %s", sta_name);
+        free(sav_name);
+        free(sta_name);
         free(dfname);
         break;
     case 1:
