@@ -112,23 +112,21 @@ void app_main(void) {
     switch(phase) {
     case 0:
         assert(dfname != NULL);
-        size_t slen = strlen(dfname) + 1;
-        static char rom_name[slen];
-        memcpy(rom_name, dfname, slen);
-        free(dfname);
-        dfname = NULL;
-        ESP_LOGI(TAG, "enter file entry: %s", rom_name);
-        size_t blen = find_noext(rom_name, APP_SURFIX_0);
+        ESP_LOGI(TAG, "enter file entry: %s", dfname);
+        size_t blen = find_noext(dfname, APP_SURFIX_0);
         size_t dlen = blen + 5;
-        static char sav_name[dlen];
-        memcpy(sav_name, rom_name, blen);
+        char* sav_name = malloc(dlen);
+        memcpy(sav_name, dfname, blen);
         memcpy(sav_name + blen, ".sav\0", 5);
         ESP_LOGI(TAG, "sav file: %s", sav_name);
-        static char sta_name[dlen];
-        memcpy(sta_name, rom_name, blen);
+        char* sta_name = malloc(dlen);
+        memcpy(sta_name, dfname, blen);
         memcpy(sta_name + blen, ".sta\0", 5);
         ESP_LOGI(TAG, "sta file: %s", sta_name);
-        run_gnuboy(rom_name, sav_name, sta_name);
+        run_gnuboy(dfname, sav_name, sta_name);
+        free(sav_name);
+        free(sta_name);
+        free(dfname);
         break;
     case 1:
         ESP_LOGI(TAG, "enter inner entry: %d", cstidx + MAX_INNER_ENTRIES);
