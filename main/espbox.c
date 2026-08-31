@@ -35,12 +35,12 @@ static int match_file(int didx, const char* surfix, char** p_rname) {
         abort();
     }
     struct dirent* ent;
-    int mcnt = 0;
+    int mcnt = -1;
     char* rname = NULL;
     while( (ent = readdir(root)) != NULL ) {
         if(ent->d_type == DT_REG) continue;
         int sfidx = find_surfix(ent->d_name, surfix);
-        if(sfidx < 0 || mcnt++ < didx) continue;
+        if(sfidx < 0 || ++mcnt < didx) continue;
         size_t rlen = strlen(g_root) + strlen(ent->d_name) + 2;
         rname = malloc(rlen);
         snprintf(rname, rlen, "%s/%s", g_root, ent->d_name);
@@ -56,6 +56,7 @@ void app_main(void) {
     ebx_fs_init();
     uint8_t pwflags = ebx_nvs_get_u8("power_flags");
     int stidx = (int)ebx_nvs_get_u8("power_start_idx");
+    printf("power nvs: 0x%x, %d\n", pwflags, stidx);
     int ostidx = stidx;
     if(pwflags == 1) {
         stidx++;
@@ -64,28 +65,34 @@ void app_main(void) {
     }
     char* dfname;
     int midx = match_file(stidx, ".gbc.zip", &dfname);
+    printf("h1 stidx=%d, midx=%d\n", stidx, midx);
     if(midx < stidx) {
         while(stidx - midx > MAX_INNER_ENTRIES) {
             stidx -= midx + MAX_INNER_ENTRIES;
         }
-    }
-        if(stidx != ostidx) {
-            if(stidx > 0xff || stidx < 0) {
-                ESP_LOGE(TAG, "invalid power_start_idx");
-            }
-            ebx_nvs_set_u8("power_start_idx", (uint8_t)stidx);
-        }
-        if(stidx > midx) {
-            ESP_LOGI(TAG, "enter inner entry: %d", stidx - midx);
-            return;
-        } else if(/*TODO*/) {
+        if(stidx <= midx) {
             assert(dfname == NULL);
             midx = match_file(stidx, ".gbc.zip", &dfname);
             assert(midx == stidx);
+    printf("h2 stidx=%d, midx=%d\n", stidx, midx);
         }
-    assert(dfname != NULL);
-    ESP_LOGI(TAG, "enter file entry: %s", dfname);
-    free(dfname);
+    }
+    printf("h3 stidx=%d, midx=%d, ostidx=%d\n", stidx, midx, ostidx);
+    if(stidx != ostidx) {
+        if(stidx > 0xff || stidx < 0) {
+            ESP_LOGE(TAG, "invalid power_start_idx");
+            abort();
+        }
+        ebx_nvs_set_u8("power_start_idx", (uint8_t)stidx);
+    }
+    printf("hd stidx=%d, midx=%d\n", stidx, midx);
+    if(stidx > midx) {
+        ESP_LOGI(TAG, "enter inner entry: %d", stidx - midx);
+    } else {
+        assert(dfname != NULL);
+        ESP_LOGI(TAG, "enter file entry: %s", dfname);
+        free(dfname);
+    }
     return;
 
     ebx_disp_init();
