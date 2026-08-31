@@ -66,6 +66,7 @@ static void app_task(void* p_param) {
         ESP_LOGW(TAG, "load sram failed: %s", g_sram_path);
     }
 
+    ebx_nvs_set_u8("power_flags", 0);
     TickType_t tick = xTaskGetTickCount();
     uint32_t fps = 0;
     bool do_draw = true;
