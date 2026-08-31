@@ -69,9 +69,9 @@ void run_gnuboy(const char* rom_name, const char* sav_name, const char* sta_name
     ebx_disp_init();
     ebx_ipt_init();
     SET_APP_PARAM(gnuboy) {
-        rom_name,
-        sav_name,
-        sta_name,
+        (void*)rom_name,
+        (void*)sav_name,
+        (void*)sta_name,
         NULL
     };
     INIT_APP(gnuboy);
@@ -112,24 +112,29 @@ void app_main(void) {
     switch(phase) {
     case 0:
         assert(dfname != NULL);
-        ESP_LOGI(TAG, "enter file entry: %s", dfname);
-        size_t blen = find_noext(dfname, APP_SURFIX_0);
+        char* rom_name = strdup(dfname);
+        ESP_LOGI(TAG, "enter file entry: %s", rom_name);
+        size_t blen = find_noext(rom_name, APP_SURFIX_0);
         size_t dlen = blen + 5;
         char* sav_name = malloc(dlen);
-        memcpy(sav_name, dfname, blen);
+        memcpy(sav_name, rom_name, blen);
         memcpy(sav_name + blen, ".sav\0", 5);
         ESP_LOGI(TAG, "sav file: %s", sav_name);
         char* sta_name = malloc(dlen);
-        memcpy(sta_name, dfname, blen);
+        memcpy(sta_name, rom_name, blen);
         memcpy(sta_name + blen, ".sta\0", 5);
         ESP_LOGI(TAG, "sta file: %s", sta_name);
-        run_gnuboy(dfname, sav_name, sta_name);
-        free(sav_name);
+        run_gnuboy(rom_name, sav_name, sta_name);
+        /* should not free path name */
+        /*free(sav_name);
         free(sta_name);
-        free(dfname);
+        free(rom_name);*/
         break;
     case 1:
         ESP_LOGI(TAG, "enter inner entry: %d", cstidx + MAX_INNER_ENTRIES);
         break;
+    }
+    if(dfname != NULL) {
+        free(dfname);
     }
 }

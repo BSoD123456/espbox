@@ -11,7 +11,7 @@
 static const char* TAG = "ebx_fs";
 
 void ebx_fs_init(void) {
-    ESP_LOGI(TAG, "Initializing SPIFFS");
+    ESP_LOGI(TAG, "Initializing LittleFS");
 
     esp_vfs_littlefs_conf_t conf = {
         .base_path = "/storage",

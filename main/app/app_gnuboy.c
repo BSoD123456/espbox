@@ -30,9 +30,9 @@ static const char* TAG = "ebx_app_gnuboy";
 
 #define DISP_MIN_FPS 15
 
-static char* g_rom_path = NULL;
-static char* g_sram_path = NULL;
-static char* g_stat_path = NULL;
+static const char* g_rom_path = NULL;
+static const char* g_sram_path = NULL;
+static const char* g_stat_path = NULL;
 
 static int  g_menuconf_key = 0;
 static int  g_menuconf_pad = 0;
