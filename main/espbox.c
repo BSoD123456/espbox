@@ -134,6 +134,7 @@ void app_main(void) {
         ESP_LOGI(TAG, "enter inner entry: %d", cstidx + MAX_INNER_ENTRIES);
         switch(cstidx + MAX_INNER_ENTRIES) {
         case 0:
+            ebx_disp_init();
             ebx_wifi_init();
             SET_APP_PARAM(fmserver) {
                 NULL

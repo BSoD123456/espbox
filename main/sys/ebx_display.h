@@ -34,6 +34,10 @@ void ebx_disp_blit_at(void* dbuf, int dwidth, int dheight, void* buf, int ofs_x,
 void ebx_disp_draw_at(void* buf, int ofs_x, int ofs_y, int width, int height, uint32_t flags);
 void ebx_disp_copy_frame(void);
 
+static inline void ebx_disp_clean(ebx_disp_color_t bgcolor) {
+    ebx_disp_draw_at(NULL, 0, 0, EBX_DISP_RES_W, EBX_DISP_RES_H, EBX_DISP_DRAW_FLAGS(EBX_DISP_DRAW_FLAG_FILL, bgcolor));
+}
+
 #define EBX_DISP_FCTX_STATIC(vname)     void* vname[2] = {}
 void* ebx_disp_fctx_alloc(void);
 void ebx_disp_fctx_free(void* fctx);

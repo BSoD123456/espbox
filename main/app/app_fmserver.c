@@ -14,5 +14,7 @@ esp_err_t example_start_file_server(const char *base_path);
 
 REG_APP {
     ESP_LOGI(TAG, "start file manage http server");
+    ebx_disp_clean(EBX_DISP_COLOR(120, 100, 10));
+    ebx_disp_render();
     example_start_file_server("/storage");
 }
