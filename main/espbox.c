@@ -135,6 +135,10 @@ void app_main(void) {
         switch(cstidx + MAX_INNER_ENTRIES) {
         case 0:
             ebx_wifi_init();
+            SET_APP_PARAM(fmserver) {
+                NULL
+            };
+            INIT_APP(fmserver);
             break;
         }
         break;
