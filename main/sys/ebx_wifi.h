@@ -3,7 +3,7 @@
 
 #define EBX_WIFI_AP_SSID    "espbox_ap"
 #define EBX_WIFI_AP_MAXCONN 1
-#define EBX_WIFI_AP_CHANNEL CONFIG_ESP_WIFI_CHANNEL
+#define EBX_WIFI_AP_CHANNEL 6
 
 void ebx_wifi_init(void);
 

@@ -132,6 +132,11 @@ void app_main(void) {
         break;
     case 1:
         ESP_LOGI(TAG, "enter inner entry: %d", cstidx + MAX_INNER_ENTRIES);
+        switch(cstidx + MAX_INNER_ENTRIES) {
+        case 0:
+            ebx_wifi_init();
+            break;
+        }
         break;
     }
     if(dfname != NULL) {
