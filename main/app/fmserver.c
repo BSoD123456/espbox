@@ -23,8 +23,9 @@
 #include "esp_log.h"
 
 #include "esp_vfs.h"
-#include "esp_spiffs.h"
 #include "esp_http_server.h"
+
+#include "fmserver_assets/upload_script.html.h"
 
 /* Max length a file path can have on storage */
 #define FILE_PATH_MAX (ESP_VFS_PATH_MAX + CONFIG_SPIFFS_OBJ_NAME_LEN)
@@ -57,19 +58,6 @@ static esp_err_t index_html_get_handler(httpd_req_t *req)
     return ESP_OK;
 }
 
-/* Handler to respond with an icon file embedded in flash.
- * Browsers expect to GET website icon at URI /favicon.ico.
- * This can be overridden by uploading file with same name */
-static esp_err_t favicon_get_handler(httpd_req_t *req)
-{
-    extern const unsigned char favicon_ico_start[] asm("_binary_favicon_ico_start");
-    extern const unsigned char favicon_ico_end[]   asm("_binary_favicon_ico_end");
-    const size_t favicon_ico_size = (favicon_ico_end - favicon_ico_start);
-    httpd_resp_set_type(req, "image/x-icon");
-    httpd_resp_send(req, (const char *)favicon_ico_start, favicon_ico_size);
-    return ESP_OK;
-}
-
 /* Send HTTP response with a run-time generated html consisting of
  * a list of all files and folders under the requested path.
  * In case of SPIFFS this returns empty list when path is any
@@ -97,15 +85,11 @@ static esp_err_t http_resp_dir_html(httpd_req_t *req, const char *dirpath)
     }
 
     /* Send HTML file header */
-    httpd_resp_sendstr_chunk(req, "<!DOCTYPE html><html><body>");
+    httpd_resp_sendstr_chunk(req, "<!DOCTYPE html><html><head>");
+    httpd_resp_sendstr_chunk(req, "<link rel=\"icon\" href=\"data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA=\">");
+    httpd_resp_sendstr_chunk(req, "</head><body>");
 
-    /* Get handle to embedded file upload script */
-    extern const unsigned char upload_script_start[] asm("_binary_upload_script_html_start");
-    extern const unsigned char upload_script_end[]   asm("_binary_upload_script_html_end");
-    const size_t upload_script_size = (upload_script_end - upload_script_start);
-
-    /* Add file upload form and script which on execution sends a POST request to /upload */
-    httpd_resp_send_chunk(req, (const char *)upload_script_start, upload_script_size);
+    httpd_resp_sendstr_chunk(req, html2h_upload_script_html);
 
     /* Send file-list table definition and column labels */
     httpd_resp_sendstr_chunk(req,
@@ -234,8 +218,6 @@ static esp_err_t download_get_handler(httpd_req_t *req)
          * corresponds to one of the hardcoded paths */
         if (strcmp(filename, "/index.html") == 0) {
             return index_html_get_handler(req);
-        } else if (strcmp(filename, "/favicon.ico") == 0) {
-            return favicon_get_handler(req);
         }
         ESP_LOGE(TAG, "Failed to stat file : %s", filepath);
         /* Respond with 404 Not Found */
